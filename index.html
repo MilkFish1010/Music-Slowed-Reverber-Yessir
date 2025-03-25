@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Audio Slowdown, Reverb & DJ Disc</title>
+  <!-- Include LameJS (download locally or via CDN) -->
+  <script src="node_modules/lamejs/lame.min.js"></script>
   <style>
     /* Base styles */
     body {
@@ -41,12 +43,11 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.5);
       padding: 5px 0;
       z-index: 10001;
-      display: none; /* Only visible while playing */
+      display: none;
       margin: 0;
     }
     .led-scroll span {
       display: inline-block;
-      /* Remove extra gap: start at full right */
       animation: scrollText 10s linear infinite;
     }
     @keyframes scrollText {
@@ -55,7 +56,7 @@
     }
     /* Disco/night mode */
     body.disco-active {
-      background: #000000;
+      background: #000;
       color: #eee;
       background-image: url('discobg.gif');
       background-size: cover;
@@ -64,15 +65,11 @@
     @media screen and (max-width: 768px) {
       body.disco-active {
         background-image: url('discobg2.gif');
-        background-size: cover;
-        background-repeat: no-repeat;
       }
     }
     @media screen and (max-width: 480px) {
       body.disco-active {
         background-image: url('discobg3.gif');
-        background-size: cover;
-        background-repeat: no-repeat;
       }
     }
     body.disco-active h1 {
@@ -81,8 +78,7 @@
     body.disco-active .container {
       background: #222;
     }
-    
-    /* Disco Ball placeholder image (positioned at bottom center) */
+    /* Disco Ball placeholder */
     #discoBall {
       position: fixed;
       left: 50%;
@@ -100,11 +96,9 @@
         height: 100px;
       }
     }
-    /* When active, animate in */
     #discoBall.active {
       animation: discoIn 0.8s forwards;
     }
-    /* When transitioning out, animate out */
     #discoBall.out {
       animation: discoOut 0.8s forwards;
     }
@@ -116,8 +110,7 @@
       0% { transform: translateX(-50%) translateY(0) scale(1) rotate(720deg); opacity: 1; }
       100% { transform: translateX(-50%) translateY(150px) scale(0) rotate(1080deg); opacity: 0; }
     }
-    
-    /* Rest of styles remain unchanged */
+    /* Player and controls */
     .player-container {
       display: flex;
       flex-wrap: wrap;
@@ -181,7 +174,6 @@
       color: white;
       font-size: 30px;
       cursor: pointer;
-      outline: none;
       transition: background 0.3s ease;
     }
     #toggleButton:hover {
@@ -243,11 +235,6 @@
     .slider-container span {
       margin-top: 5px;
     }
-    .button-group {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
     .button-group button {
       background: #4CAF50;
       color: white;
@@ -256,14 +243,9 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 16px;
-      flex: 1;
     }
     .button-group button:hover {
       background: #45a049;
-    }
-    .button-group button:disabled {
-      background: #cccccc;
-      cursor: not-allowed;
     }
     #audioFile {
       display: block;
@@ -277,7 +259,6 @@
       align-items: center;
       gap: 0.35em;
       padding: 0.75em 1em;
-      padding-right: 1.25em;
       color: #fff;
       border: 1px solid transparent;
       font-weight: 700;
@@ -291,10 +272,6 @@
         rgba(77, 54, 208, 1) 0%,
         rgba(132, 116, 254, 1) 100%
       );
-    }
-    .button__icon {
-      width: 1.5em;
-      height: 1.5em;
     }
     .button:hover {
       border-color: #f4f5f2;
@@ -460,14 +437,13 @@
       No file selected.
       <img src="cry.gif" alt="No file selected" />
     </div>
+    <!-- Format Selector (default MP3) -->
+    <select id="formatSelect">
+      <option value="mp3" selected>MP3</option>
+      <option value="wav">WAV</option>
+    </select>
     <!-- Export button -->
     <button class="button" id="exportButton">
-      <svg stroke-linejoin="round" stroke-linecap="round" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" height="40" width="40" class="button__icon" xmlns="http://www.w3.org/2000/svg">
-        <path fill="none" d="M0 0h24v24H0z" stroke="none"></path>
-        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-        <path d="M7 11l5 5l5 -5"></path>
-        <path d="M12 4l0 12"></path>
-      </svg>
       <span class="button__text">Download Processed Audio</span>
     </button>
     <br>
@@ -480,7 +456,7 @@
           <img id="dancingImage" src="https://via.placeholder.com/100?text=Dance" alt="Dancing" />
         </div>
         <!-- Play/Pause toggle button -->
-        <button id="toggleButton">&#9658;</button>
+        <button id="toggleButton">►</button>
         <br />
         <input type="range" id="progressBar" min="0" max="100" step="0.1" value="0" disabled />
         <div class="time-display-container">
@@ -517,32 +493,67 @@
   </div>
   
   <script>
-    // Array of dancing images
-    const dancingImages = [
-      'a.gif', 'b.gif', 'c.gif', 'd.gif', 'e.gif', 'f.gif',
-      'g.gif', 'h.gif', 'i.gif', 'k.gif', 'l.gif', 'm.gif', 'n.gif'
-    ];
-
-    // Audio context and nodes for live playback
-    let audioContext;
-    let audioBuffer = null;
-    let source = null;
-    let isPlaying = false;
-    let isPaused = false;
-    let startTime = 0;
-    let pausedAt = 0;
-    let currentPlaybackPosition = 0;
-    let progressUpdateInterval = null;
-    let debounceTimeout;
+    // Helper functions for MP3 encoding
+    function floatTo16BitPCM(float32Array) {
+      const int16Array = new Int16Array(float32Array.length);
+      for (let i = 0; i < float32Array.length; i++) {
+        let s = Math.max(-1, Math.min(1, float32Array[i]));
+        int16Array[i] = s < 0 ? s * 32768 : s * 32767;
+      }
+      return int16Array;
+    }
     
-    // Audio processing nodes (live)
-    let gainNode = null;
-    let convolverNode = null;
-    let dryGainNode = null;
-    let wetGainNode = null;
-    let impulseResponse = null;
+    function encodeMP3(buffer) {
+      const numChannels = buffer.numberOfChannels;
+      const sampleRate = buffer.sampleRate;
+      const bitRate = 128;
+      const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, bitRate);
+      const blockSize = 1152;
+      const mp3Data = [];
     
-    // DOM elements
+      const left = buffer.getChannelData(0);
+      const right = numChannels > 1 ? buffer.getChannelData(1) : left;
+      const samplesLength = left.length;
+    
+      for (let i = 0; i < samplesLength; i += blockSize) {
+        const leftChunk = left.subarray(i, i + blockSize);
+        const rightChunk = numChannels > 1 ? right.subarray(i, i + blockSize) : leftChunk;
+    
+        const leftChunkInt16 = floatTo16BitPCM(leftChunk);
+        const rightChunkInt16 = numChannels > 1 ? floatTo16BitPCM(rightChunk) : leftChunkInt16;
+    
+        const mp3buf = numChannels > 1 ?
+          mp3encoder.encodeBuffer(leftChunkInt16, rightChunkInt16) :
+          mp3encoder.encodeBuffer(leftChunkInt16);
+        if (mp3buf.length > 0) {
+          mp3Data.push(new Int8Array(mp3buf));
+        }
+      }
+      const mp3buf = mp3encoder.flush();
+      if (mp3buf.length > 0) {
+        mp3Data.push(new Int8Array(mp3buf));
+      }
+      return new Blob(mp3Data, { type: 'audio/mp3' });
+    }
+    
+    // Global variables for audio processing
+    let audioContext,
+        audioBuffer = null,
+        source = null,
+        isPlaying = false,
+        isPaused = false,
+        startTime = 0,
+        pausedAt = 0,
+        currentPlaybackPosition = 0,
+        progressUpdateInterval = null,
+        debounceTimeout;
+    
+    let gainNode = null,
+        convolverNode = null,
+        dryGainNode = null,
+        wetGainNode = null,
+        impulseResponse = null;
+    
     const audioFileInput = document.getElementById('audioFile');
     const speedSlider = document.getElementById('speedSlider');
     const speedValue = document.getElementById('speedValue');
@@ -562,12 +573,11 @@
     const discoBall = document.getElementById('discoBall');
     const lightBeams = document.getElementById('lightBeams');
     const ledScroll = document.getElementById('ledScroll');
+    const formatSelect = document.getElementById('formatSelect');
     
-    // For disc dragging
     let isDragging = false;
-    // Save current file name for LED scroll text
     let currentFileName = '';
-
+    
     function initAudioContext() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -622,11 +632,11 @@
     function updateDancingAnimation() {
       const playbackSpeed = parseFloat(speedSlider.value);
       dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
-      // Sync LED scroll speed with playback speed
       ledScroll.querySelector('span').style.animationDuration = (10 / playbackSpeed) + 's';
     }
     
     function showDancingImage() {
+      const dancingImages = ['a.gif', 'b.gif', 'c.gif', 'd.gif', 'e.gif', 'f.gif', 'g.gif', 'h.gif', 'i.gif', 'k.gif', 'l.gif', 'm.gif', 'n.gif'];
       dancingImage.src = dancingImages[Math.floor(Math.random() * dancingImages.length)];
       dancingImage.style.opacity = 1;
       updateDancingAnimation();
@@ -636,14 +646,12 @@
       dancingImage.style.opacity = 0;
     }
     
-    // Enable disco theme and animate disco ball in
     function enableDiscoTheme() {
       document.body.classList.add('disco-active');
       discoBall.classList.remove('out');
       discoBall.classList.add('active');
     }
     
-    // Disable disco theme and animate disco ball out
     function disableDiscoTheme() {
       document.body.classList.remove('disco-active');
       discoBall.classList.remove('active');
@@ -658,18 +666,16 @@
       if (!audioBuffer) return;
       if (!isPlaying) {
         await playAudio();
-        toggleButton.innerHTML = "&#10074;&#10074;";
+        toggleButton.innerHTML = "❚❚";
       } else {
         pauseAudio();
-        toggleButton.innerHTML = "&#9658;";
+        toggleButton.innerHTML = "►";
       }
     }
     
     async function playAudio() {
       if (!audioBuffer || isPlaying) return;
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
+      if (audioContext.state === 'suspended') await audioContext.resume();
       source = createSourceNode();
       if (isPaused) {
         currentPlaybackPosition = pausedAt;
@@ -681,13 +687,12 @@
       showDancingImage();
       showLightBeams();
       enableDiscoTheme();
-      // Show LED scroll with NOW PLAYING text
       ledScroll.style.display = 'block';
       ledScroll.querySelector('span').textContent = `NOW PLAYING: 🎵 ${currentFileName} 🎵`;
       startProgressUpdate();
       source.onended = () => {
         if (isPlaying) stopAudio();
-        toggleButton.innerHTML = "&#9658;";
+        toggleButton.innerHTML = "►";
       };
     }
     
@@ -701,7 +706,6 @@
       hideDancingImage();
       hideLightBeams();
       disableDiscoTheme();
-      // Hide LED scroll when paused
       ledScroll.style.display = 'none';
       stopProgressUpdate();
     }
@@ -717,11 +721,10 @@
       pausedAt = 0;
       progressBar.value = 0;
       currentTimeDisplay.textContent = formatTime(0);
-      toggleButton.innerHTML = "&#9658;";
+      toggleButton.innerHTML = "►";
       hideDancingImage();
       hideLightBeams();
       disableDiscoTheme();
-      // Hide LED scroll when stopped
       ledScroll.style.display = 'none';
       stopProgressUpdate();
     }
@@ -747,7 +750,7 @@
         startTime = audioContext.currentTime - position;
         source.onended = () => {
           if (isPlaying) stopAudio();
-          toggleButton.innerHTML = "&#9658;";
+          toggleButton.innerHTML = "►";
         };
       } else {
         currentPlaybackPosition = position;
@@ -823,7 +826,7 @@
           startTime = audioContext.currentTime - position;
           source.onended = () => {
             if (isPlaying) stopAudio();
-            toggleButton.innerHTML = "&#9658;";
+            toggleButton.innerHTML = "►";
           };
         } else {
           currentPlaybackPosition = position;
@@ -872,7 +875,7 @@
           startTime = audioContext.currentTime - currentPlaybackPosition;
           source.onended = () => {
             if (isPlaying) stopAudio();
-            toggleButton.innerHTML = "&#9658;";
+            toggleButton.innerHTML = "►";
           };
         }
       };
@@ -947,12 +950,20 @@
       try {
         const renderedBuffer = await offlineContext.startRendering();
         hideLoadingScreen();
-        const wavBlob = bufferToWav(renderedBuffer);
-        const url = URL.createObjectURL(wavBlob);
+        
+        const selectedFormat = formatSelect.value;
+        let blob;
+        if (selectedFormat === 'mp3') {
+          blob = encodeMP3(renderedBuffer);
+        } else {
+          blob = bufferToWav(renderedBuffer);
+        }
+        
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = 'processed_audio.wav';
+        a.download = selectedFormat === 'mp3' ? 'processed_audio.mp3' : 'processed_audio.wav';
         document.body.appendChild(a);
         a.click();
         URL.revokeObjectURL(url);
@@ -1033,7 +1044,6 @@
         return;
       }
       
-      // Save the file name and update LED scroll text
       currentFileName = file.name;
       
       try {
@@ -1046,7 +1056,7 @@
         durationDisplay.textContent = formatTime(audioBuffer.duration);
         currentPlaybackPosition = 0;
         pausedAt = 0;
-        toggleButton.innerHTML = "&#9658;";
+        toggleButton.innerHTML = "►";
         
         hideLoadingScreen();
         launchConfetti();
@@ -1056,6 +1066,14 @@
         hideLoadingScreen();
       }
     });
+    
+    function showLightBeams() {
+      lightBeams.style.opacity = '1';
+    }
+    
+    function hideLightBeams() {
+      lightBeams.style.opacity = '0';
+    }
   </script>
 </body>
 </html>
