@@ -27,25 +27,50 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       transition: background 0.5s ease;
     }
+    /* LED scroll styles */
+    .led-scroll {
+      position: fixed;
+      top: 0;
+      width: 98%;
+      background: #000;
+      color: #39FF14;
+      font-family: 'Courier New', monospace;
+      font-size: 24px;
+      white-space: nowrap;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      padding: 5px 0;
+      z-index: 10001;
+      display: none; /* Only visible while playing */
+      margin: 0;
+    }
+    .led-scroll span {
+      display: inline-block;
+      /* Remove extra gap: start at full right */
+      animation: scrollText 10s linear infinite;
+    }
+    @keyframes scrollText {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
     /* Disco/night mode */
     body.disco-active {
       background: #000000;
       color: #eee;
       background-image: url('discobg.gif');
-        background-size: cover;
-        background-repeat: no-repeat;
+      background-size: cover;
+      background-repeat: no-repeat;
     }
     @media screen and (max-width: 768px) {
-   body.disco-active {
-
+      body.disco-active {
         background-image: url('discobg2.gif');
         background-size: cover;
         background-repeat: no-repeat;
       }
-   }
-   @media screen and (max-width: 480px) {
-    body.disco-active
-     {  background-image: url('discobg3.gif');
+    }
+    @media screen and (max-width: 480px) {
+      body.disco-active {
+        background-image: url('discobg3.gif');
         background-size: cover;
         background-repeat: no-repeat;
       }
@@ -74,7 +99,6 @@
         width: 100px;
         height: 100px;
       }
-        
     }
     /* When active, animate in */
     #discoBall.active {
@@ -246,43 +270,39 @@
       margin: 10px auto 20px auto;
     }
     .button {
-  line-height: 1;
-  background-color: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.35em;
-  padding: 0.75em 1em;
-  padding-right: 1.25em;
-  color: #fff;
-  border: 1px solid transparent;
-  font-weight: 700;
-  border-radius: 2em;
-  font-size: 1rem;
-  box-shadow: 0 0.7em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
-  transition: transform 0.3s;
-  margin: auto;
-
-  background: linear-gradient(
-    90deg,
-    rgba(77, 54, 208, 1) 0%,
-    rgba(132, 116, 254, 1) 100%
-  );
-}
-
-.button__icon {
-  width: 1.5em;
-  height: 1.5em;
-}
-
-.button:hover {
-  border-color: #f4f5f2;
-}
-
-.button:active {
-  transform: scale(0.98);
-  box-shadow: 0 0.5em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
-}
+      line-height: 1;
+      background-color: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35em;
+      padding: 0.75em 1em;
+      padding-right: 1.25em;
+      color: #fff;
+      border: 1px solid transparent;
+      font-weight: 700;
+      border-radius: 2em;
+      font-size: 1rem;
+      box-shadow: 0 0.7em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
+      transition: transform 0.3s;
+      margin: auto;
+      background: linear-gradient(
+        90deg,
+        rgba(77, 54, 208, 1) 0%,
+        rgba(132, 116, 254, 1) 100%
+      );
+    }
+    .button__icon {
+      width: 1.5em;
+      height: 1.5em;
+    }
+    .button:hover {
+      border-color: #f4f5f2;
+    }
+    .button:active {
+      transform: scale(0.98);
+      box-shadow: 0 0.5em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
+    }
     #errorMessage {
       text-align: center;
       color: red;
@@ -338,93 +358,86 @@
       100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
     }
     .light-beams-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9000;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  overflow: hidden;
-}
-
-.light-beam {
-  position: absolute;
-  width: 5px;
-  height: 100vh;
-  background: linear-gradient(to bottom, 
-    rgba(255, 255, 255, 0.9), 
-    rgba(255, 217, 0, 0.7), 
-    rgba(255, 0, 128, 0.5)
-  );
-  transform-origin: top center;
-  animation: beam-sweep 2s infinite;
-  box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.7);
-  opacity: 0.7;
-}
-
-.beam1 {
-  left: 20%;
-  animation-delay: 0s;
-  transform: rotate(-20deg);
-}
-
-.beam2 {
-  left: 35%;
-  animation-delay: 0.4s;
-  transform: rotate(-10deg);
-}
-
-.beam3 {
-  left: 50%;
-  animation-delay: 0.8s;
-  transform: rotate(0deg);
-}
-
-.beam4 {
-  left: 65%;
-  animation-delay: 1.2s;
-  transform: rotate(10deg);
-}
-
-.beam5 {
-  left: 80%;
-  animation-delay: 1.6s;
-  transform: rotate(20deg);
-}
-
-@keyframes beam-sweep {
-  0% {
-    opacity: 0.2;
-    transform: rotate(-30deg);
-  }
-  50% {
-    opacity: 0.7;
-    transform: rotate(30deg);
-  }
-  100% {
-    opacity: 0.2;
-    transform: rotate(-30deg);
-  }
-}
-
-/* Add responsive styles for mobile */
-@media screen and (max-width: 768px) {
-  .light-beam {
-    width: 3px;
-  }
-  
-  .beam1 { left: 10%; }
-  .beam2 { left: 30%; }
-  .beam3 { left: 50%; }
-  .beam4 { left: 70%; }
-  .beam5 { left: 90%; }
-}
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9000;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      overflow: hidden;
+    }
+    .light-beam {
+      position: absolute;
+      width: 5px;
+      height: 100vh;
+      background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.9), 
+        rgba(255, 217, 0, 0.7), 
+        rgba(255, 0, 128, 0.5)
+      );
+      transform-origin: top center;
+      animation: beam-sweep 2s infinite;
+      box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.7);
+      opacity: 0.7;
+    }
+    .beam1 {
+      left: 20%;
+      animation-delay: 0s;
+      transform: rotate(-20deg);
+    }
+    .beam2 {
+      left: 35%;
+      animation-delay: 0.4s;
+      transform: rotate(-10deg);
+    }
+    .beam3 {
+      left: 50%;
+      animation-delay: 0.8s;
+      transform: rotate(0deg);
+    }
+    .beam4 {
+      left: 65%;
+      animation-delay: 1.2s;
+      transform: rotate(10deg);
+    }
+    .beam5 {
+      left: 80%;
+      animation-delay: 1.6s;
+      transform: rotate(20deg);
+    }
+    @keyframes beam-sweep {
+      0% {
+        opacity: 0.2;
+        transform: rotate(-30deg);
+      }
+      50% {
+        opacity: 0.7;
+        transform: rotate(30deg);
+      }
+      100% {
+        opacity: 0.2;
+        transform: rotate(-30deg);
+      }
+    }
+    @media screen and (max-width: 768px) {
+      .light-beam {
+        width: 3px;
+      }
+      .beam1 { left: 10%; }
+      .beam2 { left: 30%; }
+      .beam3 { left: 50%; }
+      .beam4 { left: 70%; }
+      .beam5 { left: 90%; }
+    }
   </style>
 </head>
 <body>
+  <!-- LED scroll element (hidden by default) -->
+  <div id="ledScroll" class="led-scroll"><span></span></div>
+  
   <!-- Loading Screen -->
   <div id="loadingScreen">
     <img src="load.gif" alt="Loading..." />
@@ -438,9 +451,8 @@
     <div class="light-beam beam5"></div>
   </div>
   
-  
   <div class="container">
-    <h1>Audio Slowdown, Reverb & DJ Disc</h1>
+    <h1>Music Reverber</h1>
     <!-- File upload -->
     <input type="file" id="audioFile" accept="audio/*" />
     <!-- Inline error message -->
@@ -450,26 +462,15 @@
     </div>
     <!-- Export button -->
     <button class="button" id="exportButton">
-        <svg
-          stroke-linejoin="round"
-          stroke-linecap="round"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          viewBox="0 0 24 24"
-          height="40"
-          width="40"
-          class="button__icon"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path fill="none" d="M0 0h24v24H0z" stroke="none"></path>
-          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-          <path d="M7 11l5 5l5 -5"></path>
-          <path d="M12 4l0 12"></path>
-        </svg>
-        <span class="button__text">Download Processed Audio</span>
-      </button><br>
-      
+      <svg stroke-linejoin="round" stroke-linecap="round" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" height="40" width="40" class="button__icon" xmlns="http://www.w3.org/2000/svg">
+        <path fill="none" d="M0 0h24v24H0z" stroke="none"></path>
+        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+        <path d="M7 11l5 5l5 -5"></path>
+        <path d="M12 4l0 12"></path>
+      </svg>
+      <span class="button__text">Download Processed Audio</span>
+    </button>
+    <br>
     
     <div class="player-container">
       <!-- Visual container -->
@@ -518,19 +519,8 @@
   <script>
     // Array of dancing images
     const dancingImages = [
-      'a.gif',
-      'b.gif',
-      'c.gif',
-      'd.gif',
-      'e.gif',
-      'f.gif',
-      'g.gif',
-      'h.gif',
-      'i.gif',
-      'k.gif',
-      'l.gif',
-      'm.gif',
-      'n.gif',
+      'a.gif', 'b.gif', 'c.gif', 'd.gif', 'e.gif', 'f.gif',
+      'g.gif', 'h.gif', 'i.gif', 'k.gif', 'l.gif', 'm.gif', 'n.gif'
     ];
 
     // Audio context and nodes for live playback
@@ -571,10 +561,13 @@
     const exportButton = document.getElementById('exportButton');
     const discoBall = document.getElementById('discoBall');
     const lightBeams = document.getElementById('lightBeams');
+    const ledScroll = document.getElementById('ledScroll');
     
     // For disc dragging
     let isDragging = false;
-    
+    // Save current file name for LED scroll text
+    let currentFileName = '';
+
     function initAudioContext() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -629,6 +622,8 @@
     function updateDancingAnimation() {
       const playbackSpeed = parseFloat(speedSlider.value);
       dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
+      // Sync LED scroll speed with playback speed
+      ledScroll.querySelector('span').style.animationDuration = (10 / playbackSpeed) + 's';
     }
     
     function showDancingImage() {
@@ -644,7 +639,7 @@
     // Enable disco theme and animate disco ball in
     function enableDiscoTheme() {
       document.body.classList.add('disco-active');
-      discoBall.classList.remove('out'); // Remove if in out state
+      discoBall.classList.remove('out');
       discoBall.classList.add('active');
     }
     
@@ -671,58 +666,65 @@
     }
     
     async function playAudio() {
-  if (!audioBuffer || isPlaying) return;
-  if (audioContext.state === 'suspended') {
-    await audioContext.resume();
-  }
-  source = createSourceNode();
-  if (isPaused) {
-    currentPlaybackPosition = pausedAt;
-    isPaused = false;
-  }
-  source.start(0, currentPlaybackPosition);
-  startTime = audioContext.currentTime - currentPlaybackPosition;
-  isPlaying = true;
-  showDancingImage();
-  showLightBeams(); // Add this line
-  enableDiscoTheme();
-  startProgressUpdate();
-  source.onended = () => {
-    if (isPlaying) stopAudio();
-    toggleButton.innerHTML = "&#9658;";
-  };
-}
+      if (!audioBuffer || isPlaying) return;
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+      source = createSourceNode();
+      if (isPaused) {
+        currentPlaybackPosition = pausedAt;
+        isPaused = false;
+      }
+      source.start(0, currentPlaybackPosition);
+      startTime = audioContext.currentTime - currentPlaybackPosition;
+      isPlaying = true;
+      showDancingImage();
+      showLightBeams();
+      enableDiscoTheme();
+      // Show LED scroll with NOW PLAYING text
+      ledScroll.style.display = 'block';
+      ledScroll.querySelector('span').textContent = `NOW PLAYING: 🎵 ${currentFileName} 🎵`;
+      startProgressUpdate();
+      source.onended = () => {
+        if (isPlaying) stopAudio();
+        toggleButton.innerHTML = "&#9658;";
+      };
+    }
     
-function pauseAudio() {
-  if (!isPlaying) return;
-  pausedAt = audioContext.currentTime - startTime;
-  source.stop();
-  source = null;
-  isPlaying = false;
-  isPaused = true;
-  hideDancingImage();
-  hideLightBeams(); // Add this line
-  disableDiscoTheme();
-  stopProgressUpdate();
-}
+    function pauseAudio() {
+      if (!isPlaying) return;
+      pausedAt = audioContext.currentTime - startTime;
+      source.stop();
+      source = null;
+      isPlaying = false;
+      isPaused = true;
+      hideDancingImage();
+      hideLightBeams();
+      disableDiscoTheme();
+      // Hide LED scroll when paused
+      ledScroll.style.display = 'none';
+      stopProgressUpdate();
+    }
     
-function stopAudio() {
-  if (source) {
-    source.stop();
-    source = null;
-  }
-  isPlaying = false;
-  isPaused = false;
-  currentPlaybackPosition = 0;
-  pausedAt = 0;
-  progressBar.value = 0;
-  currentTimeDisplay.textContent = formatTime(0);
-  toggleButton.innerHTML = "&#9658;";
-  hideDancingImage();
-  hideLightBeams(); // Add this line
-  disableDiscoTheme();
-  stopProgressUpdate();
-}
+    function stopAudio() {
+      if (source) {
+        source.stop();
+        source = null;
+      }
+      isPlaying = false;
+      isPaused = false;
+      currentPlaybackPosition = 0;
+      pausedAt = 0;
+      progressBar.value = 0;
+      currentTimeDisplay.textContent = formatTime(0);
+      toggleButton.innerHTML = "&#9658;";
+      hideDancingImage();
+      hideLightBeams();
+      disableDiscoTheme();
+      // Hide LED scroll when stopped
+      ledScroll.style.display = 'none';
+      stopProgressUpdate();
+    }
     
     function createSourceNode() {
       source = audioContext.createBufferSource();
@@ -896,14 +898,15 @@ function stopAudio() {
         }, 3000);
       }
     }
+    
     function showLightBeams() {
-  lightBeams.style.opacity = '1';
-}
-
-// Add this function to hide the light beams
-function hideLightBeams() {
-  lightBeams.style.opacity = '0';
-}
+      lightBeams.style.opacity = '1';
+    }
+    
+    function hideLightBeams() {
+      lightBeams.style.opacity = '0';
+    }
+    
     async function exportProcessedAudio() {
       if (!audioBuffer) return alert("Please load an audio file first.");
       
@@ -1013,7 +1016,6 @@ function hideLightBeams() {
     
     audioFileInput.addEventListener('change', async (event) => {
       errorMessage.style.display = 'none';
-      
       initAudioContext();
       loadingScreen.style.display = 'flex';
       loadingScreen.classList.remove('hidden');
@@ -1030,6 +1032,9 @@ function hideLightBeams() {
         loadingScreen.style.display = 'none';
         return;
       }
+      
+      // Save the file name and update LED scroll text
+      currentFileName = file.name;
       
       try {
         const arrayBuffer = await file.arrayBuffer();
