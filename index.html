@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audio Slowdown, Reverb & DJ Disc</title>
+  <style>
+    /* Base styles */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      transition: color 0.5s ease;
+    }
+    .container {
+      max-width: 1000px;
+      background: #fff;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: background 0.5s ease;
+    }
+    /* Disco/night mode */
+    body.disco-active {
+      background: #000000;
+      color: #eee;
+      background-image: url('discobg.gif');
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+    @media screen and (max-width: 768px) {
+   body.disco-active {
+
+        background-image: url('discobg2.gif');
+        background-size: cover;
+        background-repeat: no-repeat;
+      }
+   }
+   @media screen and (max-width: 480px) {
+    body.disco-active
+     {  background-image: url('discobg3.gif');
+        background-size: cover;
+        background-repeat: no-repeat;
+      }
+    }
+    body.disco-active h1 {
+      color: #ff4081;
+    }
+    body.disco-active .container {
+      background: #222;
+    }
+    
+    /* Disco Ball placeholder image (positioned at bottom center) */
+    #discoBall {
+      position: fixed;
+      left: 50%;
+      bottom: 150px;
+      transform: translateX(-50%) scale(0) rotate(0deg);
+      opacity: 0;
+      z-index: 10000;
+      width: 220px;
+      height: 220px;
+    }
+    @media screen and (max-width: 768px) {
+      #discoBall {
+        bottom: 100px;
+        width: 100px;
+        height: 100px;
+      }
+        
+    }
+    /* When active, animate in */
+    #discoBall.active {
+      animation: discoIn 0.8s forwards;
+    }
+    /* When transitioning out, animate out */
+    #discoBall.out {
+      animation: discoOut 0.8s forwards;
+    }
+    @keyframes discoIn {
+      0% { transform: translateX(-50%) translateY(150px) scale(0) rotate(0deg); opacity: 0; }
+      100% { transform: translateX(-50%) translateY(0) scale(1) rotate(720deg); opacity: 1; }
+    }
+    @keyframes discoOut {
+      0% { transform: translateX(-50%) translateY(0) scale(1) rotate(720deg); opacity: 1; }
+      100% { transform: translateX(-50%) translateY(150px) scale(0) rotate(1080deg); opacity: 0; }
+    }
+    
+    /* Rest of styles remain unchanged */
+    .player-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .visual-container {
+      position: relative;
+      flex: 1 1 400px;
+      text-align: center;
+    }
+    #discContainer {
+      position: relative;
+      margin: 0 auto;
+      width: 150px;
+      height: 150px;
+    }
+    .disc {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #888, #333);
+      border: 4px solid #555;
+      position: relative;
+      transform: rotate(0deg);
+      cursor: pointer;
+      user-select: none;
+    }
+    .disc::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: #eee4e4;
+      border-radius: 50%;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+    }
+    .disc::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 20px;
+      background: #410d0d;
+      border-radius: 2px;
+    }
+    #toggleButton {
+      display: block;
+      margin: 20px auto;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.3s ease;
+    }
+    #toggleButton:hover {
+      background: rgba(0,0,0,0.8);
+    }
+    #dancingImage {
+      position: absolute;
+      top: 50%;
+      left: calc(100% + 20px);
+      width: 100px;
+      height: 100px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      transform: translateY(-50%);
+      animation: dance 2s infinite;
+    }
+    @keyframes dance {
+      0%   { transform: translateY(-50%) translateX(0); }
+      25%  { transform: translateY(-50%) translateX(20px); }
+      50%  { transform: translateY(-50%) translateX(0); }
+      75%  { transform: translateY(-50%) translateX(-20px); }
+      100% { transform: translateY(-50%) translateX(0); }
+    }
+    #progressBar {
+      width: 80%;
+      margin: 20px auto 5px auto;
+      display: block;
+      cursor: pointer;
+    }
+    .time-display-container {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      margin: 0 auto;
+      font-family: monospace;
+    }
+    .controls-container {
+      flex: 1 1 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .control-group label {
+      font-weight: bold;
+    }
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .slider-container input[type="range"] {
+      width: 100%;
+    }
+    .slider-container span {
+      margin-top: 5px;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .button-group button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      flex: 1;
+    }
+    .button-group button:hover {
+      background: #45a049;
+    }
+    .button-group button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    #audioFile {
+      display: block;
+      margin: 10px auto 20px auto;
+    }
+    .button {
+  line-height: 1;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.75em 1em;
+  padding-right: 1.25em;
+  color: #fff;
+  border: 1px solid transparent;
+  font-weight: 700;
+  border-radius: 2em;
+  font-size: 1rem;
+  box-shadow: 0 0.7em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
+  transition: transform 0.3s;
+  margin: auto;
+
+  background: linear-gradient(
+    90deg,
+    rgba(77, 54, 208, 1) 0%,
+    rgba(132, 116, 254, 1) 100%
+  );
+}
+
+.button__icon {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.button:hover {
+  border-color: #f4f5f2;
+}
+
+.button:active {
+  transform: scale(0.98);
+  box-shadow: 0 0.5em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
+}
+    #errorMessage {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      margin: 10px auto;
+    }
+    #errorMessage img {
+      display: block;
+      margin: 10px auto;
+      width: 150px;
+      height: 150px;
+    }
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    #loadingScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #loadingScreen img {
+      width: 150px;
+      height: 150px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%   { transform: translateX(-50px); }
+      50%  { transform: translateX(50px); }
+      100% { transform: translateX(-50px); }
+    }
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: red;
+      z-index: 10000;
+      opacity: 0.7;
+      pointer-events: none;
+      animation: confetti-fall 3s ease-out forwards;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+    .light-beams-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9000;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  overflow: hidden;
+}
+
+.light-beam {
+  position: absolute;
+  width: 5px;
+  height: 100vh;
+  background: linear-gradient(to bottom, 
+    rgba(255, 255, 255, 0.9), 
+    rgba(255, 217, 0, 0.7), 
+    rgba(255, 0, 128, 0.5)
+  );
+  transform-origin: top center;
+  animation: beam-sweep 2s infinite;
+  box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.7);
+  opacity: 0.7;
+}
+
+.beam1 {
+  left: 20%;
+  animation-delay: 0s;
+  transform: rotate(-20deg);
+}
+
+.beam2 {
+  left: 35%;
+  animation-delay: 0.4s;
+  transform: rotate(-10deg);
+}
+
+.beam3 {
+  left: 50%;
+  animation-delay: 0.8s;
+  transform: rotate(0deg);
+}
+
+.beam4 {
+  left: 65%;
+  animation-delay: 1.2s;
+  transform: rotate(10deg);
+}
+
+.beam5 {
+  left: 80%;
+  animation-delay: 1.6s;
+  transform: rotate(20deg);
+}
+
+@keyframes beam-sweep {
+  0% {
+    opacity: 0.2;
+    transform: rotate(-30deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: rotate(30deg);
+  }
+  100% {
+    opacity: 0.2;
+    transform: rotate(-30deg);
+  }
+}
+
+/* Add responsive styles for mobile */
+@media screen and (max-width: 768px) {
+  .light-beam {
+    width: 3px;
+  }
+  
+  .beam1 { left: 10%; }
+  .beam2 { left: 30%; }
+  .beam3 { left: 50%; }
+  .beam4 { left: 70%; }
+  .beam5 { left: 90%; }
+}
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loadingScreen">
+    <img src="load.gif" alt="Loading..." />
+  </div>
+  <img id="discoBall" src="disco.gif" alt="Disco Ball" />
+  <div id="lightBeams" class="light-beams-container">
+    <div class="light-beam beam1"></div>
+    <div class="light-beam beam2"></div>
+    <div class="light-beam beam3"></div>
+    <div class="light-beam beam4"></div>
+    <div class="light-beam beam5"></div>
+  </div>
+  
+  
+  <div class="container">
+    <h1>Audio Slowdown, Reverb & DJ Disc</h1>
+    <!-- File upload -->
+    <input type="file" id="audioFile" accept="audio/*" />
+    <!-- Inline error message -->
+    <div id="errorMessage" style="display:none;">
+      No file selected.
+      <img src="cry.gif" alt="No file selected" />
+    </div>
+    <!-- Export button -->
+    <button class="button" id="exportButton">
+        <svg
+          stroke-linejoin="round"
+          stroke-linecap="round"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 24 24"
+          height="40"
+          width="40"
+          class="button__icon"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path fill="none" d="M0 0h24v24H0z" stroke="none"></path>
+          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+          <path d="M7 11l5 5l5 -5"></path>
+          <path d="M12 4l0 12"></path>
+        </svg>
+        <span class="button__text">Download Processed Audio</span>
+      </button><br>
+      
+    
+    <div class="player-container">
+      <!-- Visual container -->
+      <div class="visual-container">
+        <div id="discContainer">
+          <div id="djDisc" class="disc"></div>
+          <img id="dancingImage" src="https://via.placeholder.com/100?text=Dance" alt="Dancing" />
+        </div>
+        <!-- Play/Pause toggle button -->
+        <button id="toggleButton">&#9658;</button>
+        <br />
+        <input type="range" id="progressBar" min="0" max="100" step="0.1" value="0" disabled />
+        <div class="time-display-container">
+          <span id="currentTime">0:00</span>
+          <span id="duration">0:00</span>
+        </div>
+      </div>
+      
+      <!-- Controls container -->
+      <div class="controls-container">
+        <div class="control-group">
+          <label for="speedSlider">Playback Speed</label>
+          <div class="slider-container">
+            <input type="range" id="speedSlider" min="0.5" max="2" step="0.05" value="1" />
+            <span id="speedValue">1.00</span>
+          </div>
+        </div>
+        <div class="control-group">
+          <label for="reverbSlider">Reverb</label>
+          <div class="slider-container">
+            <input type="range" id="reverbSlider" min="0" max="1" step="0.05" value="0" />
+            <span id="reverbValue">0.00</span>
+          </div>
+        </div>
+        <div class="control-group">
+          <label for="volumeSlider">Volume</label>
+          <div class="slider-container">
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" />
+            <span id="volumeValue">1.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Array of dancing images
+    const dancingImages = [
+      'a.gif',
+      'b.gif',
+      'c.gif',
+      'd.gif',
+      'e.gif',
+      'f.gif',
+      'g.gif',
+      'h.gif',
+      'i.gif',
+      'k.gif',
+      'l.gif',
+      'm.gif',
+      'n.gif',
+    ];
+
+    // Audio context and nodes for live playback
+    let audioContext;
+    let audioBuffer = null;
+    let source = null;
+    let isPlaying = false;
+    let isPaused = false;
+    let startTime = 0;
+    let pausedAt = 0;
+    let currentPlaybackPosition = 0;
+    let progressUpdateInterval = null;
+    let debounceTimeout;
+    
+    // Audio processing nodes (live)
+    let gainNode = null;
+    let convolverNode = null;
+    let dryGainNode = null;
+    let wetGainNode = null;
+    let impulseResponse = null;
+    
+    // DOM elements
+    const audioFileInput = document.getElementById('audioFile');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedValue = document.getElementById('speedValue');
+    const reverbSlider = document.getElementById('reverbSlider');
+    const reverbValue = document.getElementById('reverbValue');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeValue = document.getElementById('volumeValue');
+    const progressBar = document.getElementById('progressBar');
+    const currentTimeDisplay = document.getElementById('currentTime');
+    const durationDisplay = document.getElementById('duration');
+    const djDisc = document.getElementById('djDisc');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const dancingImage = document.getElementById('dancingImage');
+    const toggleButton = document.getElementById('toggleButton');
+    const errorMessage = document.getElementById('errorMessage');
+    const exportButton = document.getElementById('exportButton');
+    const discoBall = document.getElementById('discoBall');
+    const lightBeams = document.getElementById('lightBeams');
+    
+    // For disc dragging
+    let isDragging = false;
+    
+    function initAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        createAudioNodes();
+      }
+    }
+    
+    function createAudioNodes() {
+      gainNode = audioContext.createGain();
+      gainNode.gain.value = parseFloat(volumeSlider.value);
+      gainNode.connect(audioContext.destination);
+      
+      convolverNode = audioContext.createConvolver();
+      dryGainNode = audioContext.createGain();
+      wetGainNode = audioContext.createGain();
+      updateReverbMix(parseFloat(reverbSlider.value));
+      
+      wetGainNode.connect(gainNode);
+      convolverNode.connect(wetGainNode);
+      dryGainNode.connect(gainNode);
+      
+      createImpulseResponse();
+    }
+    
+    async function createImpulseResponse() {
+      const sampleRate = audioContext.sampleRate;
+      const length = 2 * sampleRate;
+      impulseResponse = audioContext.createBuffer(2, length, sampleRate);
+      for (let channel = 0; channel < 2; channel++) {
+        const channelData = impulseResponse.getChannelData(channel);
+        for (let i = 0; i < length; i++) {
+          channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 3);
+        }
+      }
+      convolverNode.buffer = impulseResponse;
+    }
+    
+    function formatTime(seconds) {
+      seconds = Math.floor(seconds);
+      const minutes = Math.floor(seconds / 60);
+      seconds = seconds % 60;
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    function hideLoadingScreen() {
+      loadingScreen.classList.add('hidden');
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, 500);
+    }
+    
+    function updateDancingAnimation() {
+      const playbackSpeed = parseFloat(speedSlider.value);
+      dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
+    }
+    
+    function showDancingImage() {
+      dancingImage.src = dancingImages[Math.floor(Math.random() * dancingImages.length)];
+      dancingImage.style.opacity = 1;
+      updateDancingAnimation();
+    }
+    
+    function hideDancingImage() {
+      dancingImage.style.opacity = 0;
+    }
+    
+    // Enable disco theme and animate disco ball in
+    function enableDiscoTheme() {
+      document.body.classList.add('disco-active');
+      discoBall.classList.remove('out'); // Remove if in out state
+      discoBall.classList.add('active');
+    }
+    
+    // Disable disco theme and animate disco ball out
+    function disableDiscoTheme() {
+      document.body.classList.remove('disco-active');
+      discoBall.classList.remove('active');
+      discoBall.classList.add('out');
+      discoBall.addEventListener('animationend', function handler() {
+        discoBall.classList.remove('out');
+        discoBall.removeEventListener('animationend', handler);
+      });
+    }
+    
+    async function togglePlayPause() {
+      if (!audioBuffer) return;
+      if (!isPlaying) {
+        await playAudio();
+        toggleButton.innerHTML = "&#10074;&#10074;";
+      } else {
+        pauseAudio();
+        toggleButton.innerHTML = "&#9658;";
+      }
+    }
+    
+    async function playAudio() {
+  if (!audioBuffer || isPlaying) return;
+  if (audioContext.state === 'suspended') {
+    await audioContext.resume();
+  }
+  source = createSourceNode();
+  if (isPaused) {
+    currentPlaybackPosition = pausedAt;
+    isPaused = false;
+  }
+  source.start(0, currentPlaybackPosition);
+  startTime = audioContext.currentTime - currentPlaybackPosition;
+  isPlaying = true;
+  showDancingImage();
+  showLightBeams(); // Add this line
+  enableDiscoTheme();
+  startProgressUpdate();
+  source.onended = () => {
+    if (isPlaying) stopAudio();
+    toggleButton.innerHTML = "&#9658;";
+  };
+}
+    
+function pauseAudio() {
+  if (!isPlaying) return;
+  pausedAt = audioContext.currentTime - startTime;
+  source.stop();
+  source = null;
+  isPlaying = false;
+  isPaused = true;
+  hideDancingImage();
+  hideLightBeams(); // Add this line
+  disableDiscoTheme();
+  stopProgressUpdate();
+}
+    
+function stopAudio() {
+  if (source) {
+    source.stop();
+    source = null;
+  }
+  isPlaying = false;
+  isPaused = false;
+  currentPlaybackPosition = 0;
+  pausedAt = 0;
+  progressBar.value = 0;
+  currentTimeDisplay.textContent = formatTime(0);
+  toggleButton.innerHTML = "&#9658;";
+  hideDancingImage();
+  hideLightBeams(); // Add this line
+  disableDiscoTheme();
+  stopProgressUpdate();
+}
+    
+    function createSourceNode() {
+      source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.playbackRate.value = parseFloat(speedSlider.value);
+      source.connect(dryGainNode);
+      source.connect(convolverNode);
+      return source;
+    }
+    
+    function seekTo(position) {
+      position = Math.max(0, Math.min(position, audioBuffer.duration));
+      currentTimeDisplay.textContent = formatTime(position);
+      progressBar.value = position;
+      if (isPlaying) {
+        source.onended = null;
+        source.stop();
+        source = createSourceNode();
+        source.start(0, position);
+        startTime = audioContext.currentTime - position;
+        source.onended = () => {
+          if (isPlaying) stopAudio();
+          toggleButton.innerHTML = "&#9658;";
+        };
+      } else {
+        currentPlaybackPosition = position;
+        pausedAt = position;
+      }
+    }
+    
+    function updateDiscRotation(currentTime) {
+      if (audioBuffer && !isDragging) {
+        let angle = (currentTime / audioBuffer.duration) * 360;
+        djDisc.style.transform = `rotate(${angle}deg)`;
+      }
+    }
+    
+    function startProgressUpdate() {
+      stopProgressUpdate();
+      progressUpdateInterval = setInterval(() => {
+        if (isPlaying && source && !isDragging) {
+          const currentPosition = audioContext.currentTime - startTime;
+          progressBar.value = currentPosition;
+          currentTimeDisplay.textContent = formatTime(currentPosition);
+          updateDiscRotation(currentPosition);
+          if (currentPosition >= audioBuffer.duration) stopAudio();
+        }
+      }, 100);
+    }
+    
+    function stopProgressUpdate() {
+      if (progressUpdateInterval) {
+        clearInterval(progressUpdateInterval);
+        progressUpdateInterval = null;
+      }
+    }
+    
+    function updateReverbMix(reverbAmount) {
+      if (dryGainNode && wetGainNode) {
+        dryGainNode.gain.value = 1 - reverbAmount;
+        wetGainNode.gain.value = reverbAmount;
+      }
+    }
+    
+    speedSlider.addEventListener('input', () => {
+      const value = parseFloat(speedSlider.value);
+      speedValue.textContent = value.toFixed(2);
+      if (source && isPlaying) {
+        source.playbackRate.value = value;
+        updateDancingAnimation();
+      }
+    });
+    
+    reverbSlider.addEventListener('input', () => {
+      const value = parseFloat(reverbSlider.value);
+      reverbValue.textContent = value.toFixed(2);
+      updateReverbMix(value);
+    });
+    
+    volumeSlider.addEventListener('input', () => {
+      const value = parseFloat(volumeSlider.value);
+      volumeValue.textContent = value.toFixed(2);
+      if (gainNode) gainNode.gain.value = value;
+    });
+    
+    progressBar.addEventListener('input', () => {
+      clearTimeout(debounceTimeout);
+      const position = parseFloat(progressBar.value);
+      currentTimeDisplay.textContent = formatTime(position);
+      debounceTimeout = setTimeout(() => {
+        if (isPlaying) {
+          source.onended = null;
+          source.stop();
+          source = createSourceNode();
+          source.start(0, position);
+          startTime = audioContext.currentTime - position;
+          source.onended = () => {
+            if (isPlaying) stopAudio();
+            toggleButton.innerHTML = "&#9658;";
+          };
+        } else {
+          currentPlaybackPosition = position;
+          pausedAt = position;
+        }
+      }, 200);
+    });
+    
+    progressBar.addEventListener('change', () => {
+      const position = parseFloat(progressBar.value);
+      seekTo(position);
+    });
+    
+    function getAngleFromCenter(event, element) {
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      let angle = Math.atan2(event.clientY - centerY, event.clientX - centerX) * (180 / Math.PI);
+      if (angle < 0) angle += 360;
+      return angle;
+    }
+    
+    djDisc.addEventListener('mousedown', (e) => {
+      if (!audioBuffer) return;
+      isDragging = true;
+      if (isPlaying && source) {
+        source.onended = null;
+        source.stop();
+      }
+      const onMouseMove = (e) => {
+        const angle = getAngleFromCenter(e, djDisc);
+        djDisc.style.transform = `rotate(${angle}deg)`;
+        const newPosition = (angle / 360) * audioBuffer.duration;
+        currentTimeDisplay.textContent = formatTime(newPosition);
+        progressBar.value = newPosition;
+        currentPlaybackPosition = newPosition;
+        pausedAt = newPosition;
+      };
+      const onMouseUp = (e) => {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        if (isPlaying) {
+          source = createSourceNode();
+          source.start(0, currentPlaybackPosition);
+          startTime = audioContext.currentTime - currentPlaybackPosition;
+          source.onended = () => {
+            if (isPlaying) stopAudio();
+            toggleButton.innerHTML = "&#9658;";
+          };
+        }
+      };
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+    
+    toggleButton.addEventListener('click', togglePlayPause);
+    
+    function launchConfetti() {
+      const colors = ['#FFC107', '#FF5722', '#4CAF50', '#03A9F4', '#E91E63'];
+      const numConfetti = 30;
+      for (let i = 0; i < numConfetti; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = '-10px';
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+        setTimeout(() => {
+          confetti.remove();
+        }, 3000);
+      }
+    }
+    function showLightBeams() {
+  lightBeams.style.opacity = '1';
+}
+
+// Add this function to hide the light beams
+function hideLightBeams() {
+  lightBeams.style.opacity = '0';
+}
+    async function exportProcessedAudio() {
+      if (!audioBuffer) return alert("Please load an audio file first.");
+      
+      const playbackSpeed = parseFloat(speedSlider.value);
+      const newDuration = audioBuffer.duration / playbackSpeed;
+      const sampleRate = audioContext.sampleRate;
+      const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, sampleRate * newDuration, sampleRate);
+      
+      const offlineSource = offlineContext.createBufferSource();
+      offlineSource.buffer = audioBuffer;
+      offlineSource.playbackRate.value = playbackSpeed;
+      
+      const offlineGain = offlineContext.createGain();
+      offlineGain.gain.value = parseFloat(volumeSlider.value);
+      
+      const offlineConvolver = offlineContext.createConvolver();
+      offlineConvolver.buffer = impulseResponse;
+      
+      const offlineDryGain = offlineContext.createGain();
+      const offlineWetGain = offlineContext.createGain();
+      const reverbAmount = parseFloat(reverbSlider.value);
+      offlineDryGain.gain.value = 1 - reverbAmount;
+      offlineWetGain.gain.value = reverbAmount;
+      
+      offlineSource.connect(offlineDryGain);
+      offlineDryGain.connect(offlineGain);
+      
+      offlineSource.connect(offlineConvolver);
+      offlineConvolver.connect(offlineWetGain);
+      offlineWetGain.connect(offlineGain);
+      
+      offlineGain.connect(offlineContext.destination);
+      
+      offlineSource.start();
+      loadingScreen.style.display = 'flex';
+      loadingScreen.classList.remove('hidden');
+      
+      try {
+        const renderedBuffer = await offlineContext.startRendering();
+        hideLoadingScreen();
+        const wavBlob = bufferToWav(renderedBuffer);
+        const url = URL.createObjectURL(wavBlob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'processed_audio.wav';
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        hideLoadingScreen();
+        console.error("Error during offline rendering:", error);
+        alert("Error processing audio.");
+      }
+    }
+    
+    function bufferToWav(buffer) {
+      let numOfChan = buffer.numberOfChannels,
+          length = buffer.length * numOfChan * 2 + 44,
+          bufferArray = new ArrayBuffer(length),
+          view = new DataView(bufferArray),
+          channels = [],
+          sampleRate = buffer.sampleRate,
+          offset = 0,
+          pos = 0;
+      
+      function setUint32(data) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+      }
+      function setUint16(data) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+      }
+      
+      setUint32(0x46464952);
+      setUint32(length - 8);
+      setUint32(0x45564157);
+      setUint32(0x20746d66);
+      setUint32(16);
+      setUint16(1);
+      setUint16(numOfChan);
+      setUint32(sampleRate);
+      setUint32(sampleRate * numOfChan * 2);
+      setUint16(numOfChan * 2);
+      setUint16(16);
+      setUint32(0x61746164);
+      setUint32(length - pos - 4);
+      
+      for (let i = 0; i < buffer.numberOfChannels; i++)
+        channels.push(buffer.getChannelData(i));
+      
+      while(pos < length) {
+        for (let i = 0; i < numOfChan; i++) {
+          let sample = Math.max(-1, Math.min(1, channels[i][offset]));
+          sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+          view.setInt16(pos, sample, true);
+          pos += 2;
+        }
+        offset++;
+      }
+      
+      return new Blob([view], { type: "audio/wav" });
+    }
+    
+    exportButton.addEventListener('click', exportProcessedAudio);
+    
+    audioFileInput.addEventListener('change', async (event) => {
+      errorMessage.style.display = 'none';
+      
+      initAudioContext();
+      loadingScreen.style.display = 'flex';
+      loadingScreen.classList.remove('hidden');
+      
+      if (source || isPlaying) {
+        stopAudio();
+      }
+      
+      const file = event.target.files[0];
+      
+      if (!file) {
+        errorMessage.style.display = 'block';
+        loadingScreen.classList.add('hidden');
+        loadingScreen.style.display = 'none';
+        return;
+      }
+      
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        progressBar.disabled = false;
+        progressBar.max = audioBuffer.duration;
+        progressBar.value = 0;
+        currentTimeDisplay.textContent = formatTime(0);
+        durationDisplay.textContent = formatTime(audioBuffer.duration);
+        currentPlaybackPosition = 0;
+        pausedAt = 0;
+        toggleButton.innerHTML = "&#9658;";
+        
+        hideLoadingScreen();
+        launchConfetti();
+      } catch (error) {
+        console.error('Error loading audio file:', error);
+        alert('Error loading audio file. Please try another file.');
+        hideLoadingScreen();
+      }
+    });
+  </script>
+</body>
+</html>
