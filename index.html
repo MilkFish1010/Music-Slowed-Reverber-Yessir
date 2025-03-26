@@ -51,7 +51,6 @@
         font-size: 18px;
         width: 90%;
       }
-      
     }
     .led-scroll span {
       display: inline-block;
@@ -85,12 +84,12 @@
     body.disco-active .container {
       background: #222;
     }
-    /* Disco Ball placeholder */
+    /* Disco Ball now positioned at the top right */
     #discoBall {
       position: absolute;
-      left: 50%;
-      bottom: 150px;
-      transform: translateX(-50%) scale(0) rotate(0deg);
+      top: 0;
+      right: 0;
+      transform: translate(-50%, 0) scale(0) rotate(0deg);
       opacity: 0;
       z-index: 10000;
       width: 220px;
@@ -98,7 +97,9 @@
     }
     @media screen and (max-width: 768px) {
       #discoBall {
-        bottom: 100px;
+        top: 0;
+        right: 0;
+        transform: translate(-50%, 0) scale(0) rotate(0deg);
         width: 100px;
         height: 100px;
       }
@@ -110,12 +111,12 @@
       animation: discoOut 0.8s forwards;
     }
     @keyframes discoIn {
-      0% { transform: translateX(-50%) translateY(150px) scale(0) rotate(0deg); opacity: 0; }
-      100% { transform: translateX(-50%) translateY(0) scale(1) rotate(720deg); opacity: 1; }
+      0% { transform: translate(-50%, 0) translateY(-100px) scale(0) rotate(0deg); opacity: 0; }
+      100% { transform: translate(-50%, 0) translateY(0) scale(1) rotate(720deg); opacity: 1; }
     }
     @keyframes discoOut {
-      0% { transform: translateX(-50%) translateY(0) scale(1) rotate(720deg); opacity: 1; }
-      100% { transform: translateX(-50%) translateY(150px) scale(0) rotate(1080deg); opacity: 0; }
+      0% { transform: translate(-50%, 0) translateY(0) scale(1) rotate(720deg); opacity: 1; }
+      100% { transform: translate(-50%, 0) translateY(-100px) scale(0) rotate(1080deg); opacity: 0; }
     }
     /* Player and controls */
     .player-container {
@@ -146,6 +147,7 @@
       transform: rotate(0deg);
       cursor: pointer;
       user-select: none;
+      background-image: url(disc.jpg);
     }
     .disc::before {
       content: "";
@@ -327,20 +329,7 @@
       50%  { transform: translateX(50px); }
       100% { transform: translateX(-50px); }
     }
-    .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: red;
-      z-index: 10000;
-      opacity: 0.7;
-      pointer-events: none;
-      animation: confetti-fall 3s ease-out forwards;
-    }
-    @keyframes confetti-fall {
-      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-    }
+    /* Light beams styles */
     .light-beams-container {
       position: fixed;
       top: 0;
@@ -892,23 +881,6 @@
     
     toggleButton.addEventListener('click', togglePlayPause);
     
-    function launchConfetti() {
-      const colors = ['#FFC107', '#FF5722', '#4CAF50', '#03A9F4', '#E91E63'];
-      const numConfetti = 30;
-      for (let i = 0; i < numConfetti; i++) {
-        const confetti = document.createElement('div');
-        confetti.classList.add('confetti');
-        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.left = Math.random() * 100 + 'vw';
-        confetti.style.top = '-10px';
-        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-        document.body.appendChild(confetti);
-        setTimeout(() => {
-          confetti.remove();
-        }, 3000);
-      }
-    }
-    
     function showLightBeams() {
       lightBeams.style.opacity = '1';
     }
@@ -1066,7 +1038,6 @@
         toggleButton.innerHTML = "►";
         
         hideLoadingScreen();
-        launchConfetti();
       } catch (error) {
         console.error('Error loading audio file:', error);
         alert('Error loading audio file. Please try another file.');

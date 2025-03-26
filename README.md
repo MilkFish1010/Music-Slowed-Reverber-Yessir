@@ -9,3 +9,5 @@ Things to do:
 - Compressed texture audio
 - Sync Animations to playback
 - Random BG
+- Bass Booster
+- Equalizer
