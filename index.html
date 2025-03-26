@@ -783,24 +783,25 @@ input[type="range"] {
     }
     
     function updateDiscRotation(currentTime) {
-      if (audioBuffer && !isDragging) {
-        let angle = (currentTime / audioBuffer.duration) * 360;
-        djDisc.style.transform = `rotate(${angle}deg)`;
-      }
+  if (audioBuffer) {
+    let angle = (currentTime / audioBuffer.duration) * 360;
+    djDisc.style.transform = `rotate(${angle}deg)`;
+  }
+}
+
+// Update the startProgressUpdate function to respect isDragging
+function startProgressUpdate() {
+  stopProgressUpdate();
+  progressUpdateInterval = setInterval(() => {
+    if (isPlaying && source && !isDragging) {
+      const currentPosition = audioContext.currentTime - startTime;
+      progressBar.value = currentPosition;
+      currentTimeDisplay.textContent = formatTime(currentPosition);
+      updateDiscRotation(currentPosition);
+      if (currentPosition >= audioBuffer.duration) stopAudio();
     }
-    
-    function startProgressUpdate() {
-      stopProgressUpdate();
-      progressUpdateInterval = setInterval(() => {
-        if (isPlaying && source && !isDragging) {
-          const currentPosition = audioContext.currentTime - startTime;
-          progressBar.value = currentPosition;
-          currentTimeDisplay.textContent = formatTime(currentPosition);
-          updateDiscRotation(currentPosition);
-          if (currentPosition >= audioBuffer.duration) stopAudio();
-        }
-      }, 100);
-    }
+  }, 100);
+} 
     
     function stopProgressUpdate() {
       if (progressUpdateInterval) {
@@ -838,32 +839,77 @@ input[type="range"] {
       if (gainNode) gainNode.gain.value = value;
     });
     
-    progressBar.addEventListener('input', () => {
-      clearTimeout(debounceTimeout);
-      const position = parseFloat(progressBar.value);
-      currentTimeDisplay.textContent = formatTime(position);
-      debounceTimeout = setTimeout(() => {
-        if (isPlaying) {
-          source.onended = null;
-          source.stop();
-          source = createSourceNode();
-          source.start(0, position);
-          startTime = audioContext.currentTime - position;
-          source.onended = () => {
-            if (isPlaying) stopAudio();
-            toggleButton.innerHTML = "►";
-          };
-        } else {
-          currentPlaybackPosition = position;
-          pausedAt = position;
-        }
-      }, 200);
-    });
+    progressBar.addEventListener('input', (e) => {
+  // Get the current position from the slider
+  const position = parseFloat(progressBar.value);
+  
+  // Update the time display immediately
+  currentTimeDisplay.textContent = formatTime(position);
+  
+  // Update the disc rotation to match
+  updateDiscRotation(position);
+  
+  // If we're playing, we'll update the audio position in real-time
+  if (isPlaying) {
+    // Clear any existing debounce
+    clearTimeout(debounceTimeout);
     
-    progressBar.addEventListener('change', () => {
-      const position = parseFloat(progressBar.value);
-      seekTo(position);
-    });
+    // Set the current position for when we release
+    currentPlaybackPosition = position;
+    pausedAt = position;
+  }
+});
+
+// Use change event for when the user releases the slider
+progressBar.addEventListener('change', (e) => {
+  const position = parseFloat(progressBar.value);
+  
+  // If we're playing, restart the source at the new position
+  if (isPlaying) {
+    // Stop the current source
+    if (source) {
+      source.onended = null;
+      source.stop();
+    }
+    
+    // Create and start a new source at the selected position
+    source = createSourceNode();
+    source.start(0, position);
+    startTime = audioContext.currentTime - position;
+    
+    // Set up the onended handler
+    source.onended = () => {
+      if (isPlaying) stopAudio();
+      toggleButton.innerHTML = "►";
+    };
+  } else {
+    // If we're not playing, just update the positions
+    currentPlaybackPosition = position;
+    pausedAt = position;
+  }
+});
+
+// Add a mousedown event to the progress bar to handle the start of dragging
+progressBar.addEventListener('mousedown', () => {
+  // Set isDragging to true so the progress update interval doesn't override our changes
+  isDragging = true;
+});
+
+// Add mouseup and touchend events to document to handle the end of dragging
+document.addEventListener('mouseup', (e) => {
+  // Only handle progress bar dragging here
+  if (isDragging && e.target === progressBar) {
+    isDragging = false;
+  }
+});
+
+document.addEventListener('touchend', (e) => {
+  // Check if we were dragging the progress bar
+  if (isDragging && Array.from(e.changedTouches).some(touch => touch.target === progressBar)) {
+    isDragging = false;
+  }
+});
+
     
     function getAngleFromCenter(event, element) {
       const rect = element.getBoundingClientRect();
