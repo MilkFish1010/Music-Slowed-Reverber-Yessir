@@ -35,7 +35,7 @@
       top: 0;
       width: 98%;
       background: #000;
-      color: #39FF14;
+      color: #ff4081;
       font-family: 'Courier New', monospace;
       font-size: 24px;
       white-space: nowrap;
@@ -45,6 +45,13 @@
       z-index: 10001;
       display: none;
       margin: 0;
+    }
+    @media screen and (max-width: 768px) {
+      .led-scroll {
+        font-size: 18px;
+        width: 90%;
+      }
+      
     }
     .led-scroll span {
       display: inline-block;
@@ -80,7 +87,7 @@
     }
     /* Disco Ball placeholder */
     #discoBall {
-      position: fixed;
+      position: absolute;
       left: 50%;
       bottom: 150px;
       transform: translateX(-50%) scale(0) rotate(0deg);
@@ -438,13 +445,13 @@
       <img src="cry.gif" alt="No file selected" />
     </div>
     <!-- Format Selector (default MP3) -->
-    <select id="formatSelect">
-      <option value="mp3" selected>MP3</option>
-      <option value="wav">WAV</option>
-    </select>
+    
     <!-- Export button -->
     <button class="button" id="exportButton">
-      <span class="button__text">Download Processed Audio</span>
+      <span class="button__text"><select id="formatSelect">
+        <option value="mp3" selected>MP3</option>
+        <option value="wav">WAV</option>
+      </select>Download Processed Audio</span>
     </button>
     <br>
     
