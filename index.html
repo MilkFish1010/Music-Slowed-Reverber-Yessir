@@ -31,29 +31,26 @@
     }
     /* LED scroll styles */
     .led-scroll {
-      position: fixed;
-      top: 0;
-      width: 98%;
-      background: #000;
-      color: #ff4081;
-      font-family: 'Courier New', monospace;
-      font-size: 24px;
-      white-space: nowrap;
-      overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-      padding: 5px 0;
-      z-index: -1;
-      display: none;
-      margin: 0;
-    }
-    @media screen and (max-width: 768px) {
-      .led-scroll {
-        font-size: 18px;
-        width: 90%;
-      }
-    }
+  position: fixed;
+  top: 0;
+  left: 0; /* Ensure it starts from the very left edge */
+  width: 100%; /* Make it full width instead of 98% */
+  background: #000;
+  color: #ff4081;
+  font-family: 'Courier New', monospace;
+  font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  padding: 5px 0;
+  z-index: 1000;
+  display: none;
+  margin: 0; /* Remove any margin */
+}
     .led-scroll span {
       display: inline-block;
+      /* Ensure the span is wide enough to scroll completely */
+      min-width: 100%;
       animation: scrollText 10s linear infinite;
     }
     @keyframes scrollText {
@@ -146,11 +143,23 @@
       position: relative;
       transform: rotate(0deg);
       cursor: pointer;
-      user-select: none;
-      background-image: url(disc.jpg);
+      touch-action: none; /* Prevents browser handling of touch gestures */
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none; /* Standard syntax */
     }
+    #toggleButton {
+  min-width: 60px; /* Ensure button is large enough for touch */
+  min-height: 60px; /* Ensure button is large enough for touch */
+}
+
+input[type="range"] {
+  height: 30px; /* Make sliders easier to grab on touch devices */
+}
+
+
     .disc::before {
-      content: "";
+      content: "";  
       position: absolute;
       top: 50%;
       left: 50%;
@@ -352,6 +361,7 @@
         rgba(255, 0, 128, 0.5)
       );
       transform-origin: top center;
+      /* Default duration, will be updated by JS */
       animation: beam-sweep 2s infinite;
       box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.7);
       opacity: 0.7;
@@ -409,7 +419,10 @@
 </head>
 <body>
   <!-- LED scroll element (hidden by default) -->
-  <div id="ledScroll" class="led-scroll"><span></span></div>
+  <div id="ledScroll" class="led-scroll">
+    <!-- Duplicate the text to create a continuous scrolling effect -->
+    <span id="ledText"></span>
+  </div>
   
   <!-- Loading Screen -->
   <div id="loadingScreen">
@@ -570,6 +583,7 @@
     const lightBeams = document.getElementById('lightBeams');
     const ledScroll = document.getElementById('ledScroll');
     const formatSelect = document.getElementById('formatSelect');
+    const ledText = document.getElementById('ledText');
     
     let isDragging = false;
     let currentFileName = '';
@@ -628,7 +642,17 @@
     function updateDancingAnimation() {
       const playbackSpeed = parseFloat(speedSlider.value);
       dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
-      ledScroll.querySelector('span').style.animationDuration = (10 / playbackSpeed) + 's';
+      // Update LED scroll animation duration
+      ledText.style.animationDuration = (10 / playbackSpeed) + 's';
+    }
+    
+    // New function to update light beams animation based on playback speed
+    function updateLightBeamAnimation() {
+      const playbackSpeed = parseFloat(speedSlider.value);
+      const newDuration = (2 / playbackSpeed) + 's';
+      document.querySelectorAll('.light-beam').forEach(el => {
+        el.style.animationDuration = newDuration;
+      });
     }
     
     function showDancingImage() {
@@ -680,11 +704,15 @@
       source.start(0, currentPlaybackPosition);
       startTime = audioContext.currentTime - currentPlaybackPosition;
       isPlaying = true;
+      
       showDancingImage();
       showLightBeams();
       enableDiscoTheme();
+      
+      // Duplicate the text so it scrolls continuously
+      ledText.textContent = `NOW PLAYING: 🎵 ${currentFileName} 🎵   NOW PLAYING: 🎵 ${currentFileName} 🎵`;
       ledScroll.style.display = 'block';
-      ledScroll.querySelector('span').textContent = `NOW PLAYING: 🎵 ${currentFileName} 🎵`;
+      
       startProgressUpdate();
       source.onended = () => {
         if (isPlaying) stopAudio();
@@ -794,6 +822,7 @@
       if (source && isPlaying) {
         source.playbackRate.value = value;
         updateDancingAnimation();
+        updateLightBeamAnimation();
       }
     });
     
@@ -845,39 +874,122 @@
       return angle;
     }
     
-    djDisc.addEventListener('mousedown', (e) => {
-      if (!audioBuffer) return;
-      isDragging = true;
-      if (isPlaying && source) {
-        source.onended = null;
-        source.stop();
-      }
-      const onMouseMove = (e) => {
-        const angle = getAngleFromCenter(e, djDisc);
-        djDisc.style.transform = `rotate(${angle}deg)`;
-        const newPosition = (angle / 360) * audioBuffer.duration;
-        currentTimeDisplay.textContent = formatTime(newPosition);
-        progressBar.value = newPosition;
-        currentPlaybackPosition = newPosition;
-        pausedAt = newPosition;
-      };
-      const onMouseUp = (e) => {
-        isDragging = false;
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        if (isPlaying) {
-          source = createSourceNode();
-          source.start(0, currentPlaybackPosition);
-          startTime = audioContext.currentTime - currentPlaybackPosition;
-          source.onended = () => {
-            if (isPlaying) stopAudio();
-            toggleButton.innerHTML = "►";
-          };
-        }
-      };
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    });
+    // Replace the existing djDisc event listener code with this touch-compatible version
+let initialAngle = 0;
+let initialRotation = 0;
+
+// Helper function to get current rotation from transform
+function getCurrentRotation(element) {
+  const currentTransform = window.getComputedStyle(element).getPropertyValue('transform');
+  let currentRotation = 0;
+  
+  if (currentTransform !== 'none') {
+    // Extract the rotation angle from the transform matrix
+    const values = currentTransform.split('(')[1].split(')')[0].split(',');
+    const a = values[0];
+    const b = values[1];
+    currentRotation = Math.round(Math.atan2(b, a) * (180/Math.PI));
+    
+    // Normalize the angle to 0-360
+    if (currentRotation < 0) {
+      currentRotation += 360;
+    }
+  }
+  
+  return currentRotation;
+}
+
+// Function to handle both mouse and touch events
+function handlePointerDown(e) {
+  if (!audioBuffer) return;
+  
+  // Prevent default to avoid scrolling on mobile
+  e.preventDefault();
+  
+  isDragging = true;
+  
+  // Get the current rotation of the disc
+  initialRotation = getCurrentRotation(djDisc);
+  
+  // Get initial angle (works for both mouse and touch)
+  const clientX = e.clientX || e.touches[0].clientX;
+  const clientY = e.clientY || e.touches[0].clientY;
+  initialAngle = getAngleFromCenterWithCoords(clientX, clientY, djDisc);
+  
+  if (isPlaying && source) {
+    source.onended = null;
+    source.stop();
+  }
+}
+
+// Updated getAngleFromCenter function that works with coordinates
+function getAngleFromCenterWithCoords(clientX, clientY, element) {
+  const rect = element.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  let angle = Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+  if (angle < 0) angle += 360;
+  return angle;
+}
+
+// Function to handle pointer move (mouse or touch)
+function handlePointerMove(e) {
+  if (!isDragging) return;
+  
+  // Get coordinates (works for both mouse and touch)
+  const clientX = e.clientX || e.touches[0].clientX;
+  const clientY = e.clientY || e.touches[0].clientY;
+  const newAngle = getAngleFromCenterWithCoords(clientX, clientY, djDisc);
+  
+  let angleDelta = newAngle - initialAngle;
+  
+  // Handle angle wrapping around 360
+  if (angleDelta > 180) angleDelta -= 360;
+  if (angleDelta < -180) angleDelta += 360;
+  
+  let newRotation = initialRotation + angleDelta;
+  // Normalize to 0-360
+  if (newRotation < 0) newRotation += 360;
+  if (newRotation >= 360) newRotation %= 360;
+  
+  djDisc.style.transform = `rotate(${newRotation}deg)`;
+  
+  // Calculate position in audio based on rotation
+  const newPosition = (newRotation / 360) * audioBuffer.duration;
+  currentTimeDisplay.textContent = formatTime(newPosition);
+  progressBar.value = newPosition;
+  currentPlaybackPosition = newPosition;
+  pausedAt = newPosition;
+}
+
+// Function to handle pointer up (mouse or touch)
+function handlePointerUp(e) {
+  if (!isDragging) return;
+  
+  isDragging = false;
+  
+  if (isPlaying) {
+    source = createSourceNode();
+    source.start(0, currentPlaybackPosition);
+    startTime = audioContext.currentTime - currentPlaybackPosition;
+    source.onended = () => {
+      if (isPlaying) stopAudio();
+      toggleButton.innerHTML = "►";
+    };
+  }
+}
+
+// Add mouse event listeners
+djDisc.addEventListener('mousedown', handlePointerDown);
+document.addEventListener('mousemove', handlePointerMove);
+document.addEventListener('mouseup', handlePointerUp);
+
+// Add touch event listeners
+djDisc.addEventListener('touchstart', handlePointerDown, { passive: false });
+document.addEventListener('touchmove', handlePointerMove, { passive: false });
+document.addEventListener('touchend', handlePointerUp);
+document.addEventListener('touchcancel', handlePointerUp);
+
     
     toggleButton.addEventListener('click', togglePlayPause);
     
