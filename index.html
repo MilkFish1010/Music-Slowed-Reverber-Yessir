@@ -131,8 +131,9 @@
     #discContainer {
       position: relative;
       margin: 0 auto;
-      width: 150px;
-      height: 150px;
+  width: 180px;
+  height: 180px;
+  padding: 15px;
     }
     .disc {
       width: 150px;
@@ -147,6 +148,8 @@
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10+ */
   user-select: none; /* Standard syntax */
+  background-image: url('disc.jpg');
+  background-size: cover;
     }
     #toggleButton {
   min-width: 60px; /* Ensure button is large enough for touch */
@@ -415,6 +418,223 @@ input[type="range"] {
       .beam4 { left: 70%; }
       .beam5 { left: 90%; }
     }
+    /* Add these styles to your existing <style> section */
+.play-button {
+  display: block;
+  margin: 20px auto;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  font-size: 36px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 100;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.play-button:hover, .play-button:active {
+  background: rgba(255,64,129,0.9);
+  transform: scale(1.05);
+}
+
+
+
+/* Ensure proper spacing on mobile */
+@media screen and (max-width: 768px) {
+  .play-button {
+    margin: 30px auto;
+  }
+  
+  .player-container {
+    gap: 30px;
+  }
+}
+.visualizer-container {
+  width: 100%;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#visualizer {
+  width: 100%;
+  height: 150px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+#visualizerModeBtn {
+  font-size: 0.8rem;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+}
+.eq-container {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.eq-container h3 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.eq-sliders {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.eq-slider-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 80px;
+}
+
+.eq-slider-container label {
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+}
+
+.eq-slider-container input[type="range"] {
+  height: 100px;
+  margin: 0;
+  writing-mode: bt-lr; /* IE */
+  -webkit-appearance: slider-vertical; /* WebKit */
+  width: 20px;
+}
+
+.eq-slider-container span {
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+.presets-container {
+  margin: 20px 0;
+}
+
+.presets-container h4 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.preset-button {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.preset-button:hover {
+  background: #555;
+}
+
+.preset-button.active {
+  background: #ff4081;
+  box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
+}
+/* Add these styles to your existing <style> section */
+  .eq-toggle-container {
+  margin-top: 30px;
+  width: 100%;
+}
+
+.eq-toggle-btn {
+  width: 100%;
+  background: linear-gradient(90deg, rgba(77, 54, 208, 0.8) 0%, rgba(132, 116, 254, 0.8) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  padding: 12px 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.eq-toggle-btn:hover {
+  background: linear-gradient(90deg, rgba(77, 54, 208, 1) 0%, rgba(132, 116, 254, 1) 100%);
+}
+
+.eq-toggle-icon {
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.eq-toggle-icon.active {
+  transform: rotate(180deg);
+}
+
+.eq-container {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 0 0 8px 8px;
+  padding: 20px;
+  transition: max-height 0.5s ease, opacity 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+  max-height: 1000px;
+  opacity: 1;
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.eq-hidden {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+/* Adjust existing EQ styles to match the new design */
+.eq-container h3 {
+  margin-top: 0;
+  text-align: center;
+  color: #333;
+}
+
+body.disco-active .eq-toggle-btn {
+  background: linear-gradient(90deg, rgba(255, 64, 129, 0.8) 0%, rgba(255, 128, 171, 0.8) 100%);
+}
+
+body.disco-active .eq-toggle-btn:hover {
+  background: linear-gradient(90deg, rgba(255, 64, 129, 1) 0%, rgba(255, 128, 171, 1) 100%);
+}
+
+body.disco-active .eq-container {
+  background: rgba(50, 50, 50, 0.7);
+}
+
+body.disco-active .eq-container h3,
+body.disco-active .eq-container h4 {
+  color: #fff;
+}
+
+
   </style>
 </head>
 <body>
@@ -446,14 +666,17 @@ input[type="range"] {
       No file selected.
       <img src="cry.gif" alt="No file selected" />
     </div>
-    <!-- Format Selector (default MP3) -->
+    <!-- Removed visualizer block -->
     
     <!-- Export button -->
     <button class="button" id="exportButton">
-      <span class="button__text"><select id="formatSelect">
-        <option value="mp3" selected>MP3</option>
-        <option value="wav">WAV</option>
-      </select>Download Processed Audio</span>
+      <span class="button__text">
+        <select id="formatSelect">
+          <option value="mp3" selected>MP3</option>
+          <option value="wav">WAV</option>
+        </select>
+        Download Processed Audio
+      </span>
     </button>
     <br>
     
@@ -465,7 +688,7 @@ input[type="range"] {
           <img id="dancingImage" src="https://via.placeholder.com/100?text=Dance" alt="Dancing" />
         </div>
         <!-- Play/Pause toggle button -->
-        <button id="toggleButton">►</button>
+        <button id="toggleButton" class="play-button">►</button>
         <br />
         <input type="range" id="progressBar" min="0" max="100" step="0.1" value="0" disabled />
         <div class="time-display-container">
@@ -498,7 +721,33 @@ input[type="range"] {
           </div>
         </div>
       </div>
-    </div>
+      <div class="eq-toggle-container">
+        <button id="eqToggleBtn" class="eq-toggle-btn">
+          <span class="eq-toggle-icon">▼</span>
+          <span class="eq-toggle-text">Equalizer</span>
+        </button>
+        
+        <div id="eqPanel" class="eq-container eq-hidden">
+          <h3>Equalizer</h3>
+          <div class="eq-sliders">
+            <!-- EQ sliders will be added here dynamically -->
+          </div>
+          <div class="presets-container">
+            <h4>Presets</h4>
+            <div class="preset-buttons">
+              <button id="preset-flat" class="preset-button active" onclick="applyPreset('flat')">Flat</button>
+              <button id="preset-bass-boost" class="preset-button" onclick="applyPreset('bass-boost')">Bass Boost</button>
+              <button id="preset-treble-boost" class="preset-button" onclick="applyPreset('treble-boost')">Treble Boost</button>
+              <button id="preset-vocal-boost" class="preset-button" onclick="applyPreset('vocal-boost')">Vocal Boost</button>
+              <button id="preset-electronic" class="preset-button" onclick="applyPreset('electronic')">Electronic</button>
+              <button id="preset-rock" class="preset-button" onclick="applyPreset('rock')">Rock</button>
+              <button id="preset-classical" class="preset-button" onclick="applyPreset('classical')">Classical</button>
+            </div>
+          </div>
+          <br>
+          <button class="button" onclick="resetEqualizer()">Reset EQ</button>
+        </div>
+      </div>
   </div>
   
   <script>
@@ -592,6 +841,7 @@ input[type="range"] {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         createAudioNodes();
+        setupEqualizer();
       }
     }
     
@@ -640,20 +890,21 @@ input[type="range"] {
     }
     
     function updateDancingAnimation() {
-      const playbackSpeed = parseFloat(speedSlider.value);
-      dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
-      // Update LED scroll animation duration
-      ledText.style.animationDuration = (10 / playbackSpeed) + 's';
-    }
-    
-    // New function to update light beams animation based on playback speed
-    function updateLightBeamAnimation() {
-      const playbackSpeed = parseFloat(speedSlider.value);
-      const newDuration = (2 / playbackSpeed) + 's';
-      document.querySelectorAll('.light-beam').forEach(el => {
-        el.style.animationDuration = newDuration;
-      });
-    }
+  const playbackSpeed = parseFloat(speedSlider.value);
+  dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
+  // Update LED scroll animation duration
+  ledText.style.animationDuration = (10 / playbackSpeed) + 's';
+  // Update light beam animations
+  updateLightBeamAnimations(playbackSpeed);
+}
+function updateLightBeamAnimations(playbackSpeed) {
+  const beams = document.querySelectorAll('.light-beam');
+  beams.forEach(beam => {
+    // Base animation duration is 2s, adjust inversely with playback speed
+    const duration = 2 / playbackSpeed;
+    beam.style.animationDuration = `${duration}s`;
+  });
+}
     
     function showDancingImage() {
       const dancingImages = ['a.gif', 'b.gif', 'c.gif', 'd.gif', 'e.gif', 'f.gif', 'g.gif', 'h.gif', 'i.gif', 'k.gif', 'l.gif', 'm.gif', 'n.gif'];
@@ -682,8 +933,12 @@ input[type="range"] {
       });
     }
     
-    async function togglePlayPause() {
+    async function togglePlayPause(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
       if (!audioBuffer) return;
+      
       if (!isPlaying) {
         await playAudio();
         toggleButton.innerHTML = "❚❚";
@@ -692,6 +947,12 @@ input[type="range"] {
         toggleButton.innerHTML = "►";
       }
     }
+    
+    toggleButton.addEventListener('click', togglePlayPause);
+    toggleButton.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      togglePlayPause(e);
+    }, { passive: false });
     
     async function playAudio() {
       if (!audioBuffer || isPlaying) return;
@@ -708,6 +969,8 @@ input[type="range"] {
       showDancingImage();
       showLightBeams();
       enableDiscoTheme();
+      
+      // Removed visualizer setup
       
       // Duplicate the text so it scrolls continuously
       ledText.textContent = `NOW PLAYING: 🎵 ${currentFileName} 🎵   NOW PLAYING: 🎵 ${currentFileName} 🎵`;
@@ -783,25 +1046,24 @@ input[type="range"] {
     }
     
     function updateDiscRotation(currentTime) {
-  if (audioBuffer) {
-    let angle = (currentTime / audioBuffer.duration) * 360;
-    djDisc.style.transform = `rotate(${angle}deg)`;
-  }
-}
-
-// Update the startProgressUpdate function to respect isDragging
-function startProgressUpdate() {
-  stopProgressUpdate();
-  progressUpdateInterval = setInterval(() => {
-    if (isPlaying && source && !isDragging) {
-      const currentPosition = audioContext.currentTime - startTime;
-      progressBar.value = currentPosition;
-      currentTimeDisplay.textContent = formatTime(currentPosition);
-      updateDiscRotation(currentPosition);
-      if (currentPosition >= audioBuffer.duration) stopAudio();
+      if (audioBuffer) {
+        let angle = (currentTime / audioBuffer.duration) * 360;
+        djDisc.style.transform = `rotate(${angle}deg)`;
+      }
     }
-  }, 100);
-} 
+    
+    function startProgressUpdate() {
+      stopProgressUpdate();
+      progressUpdateInterval = setInterval(() => {
+        if (isPlaying && source && !isDragging) {
+          const currentPosition = audioContext.currentTime - startTime;
+          progressBar.value = currentPosition;
+          currentTimeDisplay.textContent = formatTime(currentPosition);
+          updateDiscRotation(currentPosition);
+          if (currentPosition >= audioBuffer.duration) stopAudio();
+        }
+      }, 100);
+    }
     
     function stopProgressUpdate() {
       if (progressUpdateInterval) {
@@ -818,14 +1080,16 @@ function startProgressUpdate() {
     }
     
     speedSlider.addEventListener('input', () => {
-      const value = parseFloat(speedSlider.value);
-      speedValue.textContent = value.toFixed(2);
-      if (source && isPlaying) {
-        source.playbackRate.value = value;
-        updateDancingAnimation();
-        updateLightBeamAnimation();
-      }
-    });
+  const value = parseFloat(speedSlider.value);
+  speedValue.textContent = value.toFixed(2);
+  if (source && isPlaying) {
+    source.playbackRate.value = value;
+    updateDancingAnimation();
+  }
+  // Even if not playing, update the animations for when play starts
+  updateLightBeamAnimations(value);
+});
+
     
     reverbSlider.addEventListener('input', () => {
       const value = parseFloat(reverbSlider.value);
@@ -840,76 +1104,51 @@ function startProgressUpdate() {
     });
     
     progressBar.addEventListener('input', (e) => {
-  // Get the current position from the slider
-  const position = parseFloat(progressBar.value);
-  
-  // Update the time display immediately
-  currentTimeDisplay.textContent = formatTime(position);
-  
-  // Update the disc rotation to match
-  updateDiscRotation(position);
-  
-  // If we're playing, we'll update the audio position in real-time
-  if (isPlaying) {
-    // Clear any existing debounce
-    clearTimeout(debounceTimeout);
+      const position = parseFloat(progressBar.value);
+      currentTimeDisplay.textContent = formatTime(position);
+      updateDiscRotation(position);
+      if (isPlaying) {
+        clearTimeout(debounceTimeout);
+        currentPlaybackPosition = position;
+        pausedAt = position;
+      }
+    });
     
-    // Set the current position for when we release
-    currentPlaybackPosition = position;
-    pausedAt = position;
-  }
-});
-
-// Use change event for when the user releases the slider
-progressBar.addEventListener('change', (e) => {
-  const position = parseFloat(progressBar.value);
-  
-  // If we're playing, restart the source at the new position
-  if (isPlaying) {
-    // Stop the current source
-    if (source) {
-      source.onended = null;
-      source.stop();
-    }
+    progressBar.addEventListener('change', (e) => {
+      const position = parseFloat(progressBar.value);
+      if (isPlaying) {
+        if (source) {
+          source.onended = null;
+          source.stop();
+        }
+        source = createSourceNode();
+        source.start(0, position);
+        startTime = audioContext.currentTime - position;
+        source.onended = () => {
+          if (isPlaying) stopAudio();
+          toggleButton.innerHTML = "►";
+        };
+      } else {
+        currentPlaybackPosition = position;
+        pausedAt = position;
+      }
+    });
     
-    // Create and start a new source at the selected position
-    source = createSourceNode();
-    source.start(0, position);
-    startTime = audioContext.currentTime - position;
+    progressBar.addEventListener('mousedown', () => {
+      isDragging = true;
+    });
     
-    // Set up the onended handler
-    source.onended = () => {
-      if (isPlaying) stopAudio();
-      toggleButton.innerHTML = "►";
-    };
-  } else {
-    // If we're not playing, just update the positions
-    currentPlaybackPosition = position;
-    pausedAt = position;
-  }
-});
-
-// Add a mousedown event to the progress bar to handle the start of dragging
-progressBar.addEventListener('mousedown', () => {
-  // Set isDragging to true so the progress update interval doesn't override our changes
-  isDragging = true;
-});
-
-// Add mouseup and touchend events to document to handle the end of dragging
-document.addEventListener('mouseup', (e) => {
-  // Only handle progress bar dragging here
-  if (isDragging && e.target === progressBar) {
-    isDragging = false;
-  }
-});
-
-document.addEventListener('touchend', (e) => {
-  // Check if we were dragging the progress bar
-  if (isDragging && Array.from(e.changedTouches).some(touch => touch.target === progressBar)) {
-    isDragging = false;
-  }
-});
-
+    document.addEventListener('mouseup', (e) => {
+      if (isDragging && e.target === progressBar) {
+        isDragging = false;
+      }
+    });
+    
+    document.addEventListener('touchend', (e) => {
+      if (isDragging && Array.from(e.changedTouches).some(touch => touch.target === progressBar)) {
+        isDragging = false;
+      }
+    });
     
     function getAngleFromCenter(event, element) {
       const rect = element.getBoundingClientRect();
@@ -920,196 +1159,190 @@ document.addEventListener('touchend', (e) => {
       return angle;
     }
     
-    // Replace the existing djDisc event listener code with this touch-compatible version
-let initialAngle = 0;
-let initialRotation = 0;
-
-// Helper function to get current rotation from transform
-function getCurrentRotation(element) {
-  const currentTransform = window.getComputedStyle(element).getPropertyValue('transform');
-  let currentRotation = 0;
-  
-  if (currentTransform !== 'none') {
-    // Extract the rotation angle from the transform matrix
-    const values = currentTransform.split('(')[1].split(')')[0].split(',');
-    const a = values[0];
-    const b = values[1];
-    currentRotation = Math.round(Math.atan2(b, a) * (180/Math.PI));
+    let initialAngle = 0;
+    let initialRotation = 0;
     
-    // Normalize the angle to 0-360
-    if (currentRotation < 0) {
-      currentRotation += 360;
+    function getCurrentRotation(element) {
+      const currentTransform = window.getComputedStyle(element).getPropertyValue('transform');
+      let currentRotation = 0;
+      if (currentTransform !== 'none') {
+        const values = currentTransform.split('(')[1].split(')')[0].split(',');
+        const a = values[0];
+        const b = values[1];
+        currentRotation = Math.round(Math.atan2(b, a) * (180/Math.PI));
+        if (currentRotation < 0) {
+          currentRotation += 360;
+        }
+      }
+      return currentRotation;
     }
-  }
-  
-  return currentRotation;
-}
-
-// Function to handle both mouse and touch events
-function handlePointerDown(e) {
-  if (!audioBuffer) return;
-  
-  // Prevent default to avoid scrolling on mobile
-  e.preventDefault();
-  
-  isDragging = true;
-  
-  // Get the current rotation of the disc
-  initialRotation = getCurrentRotation(djDisc);
-  
-  // Get initial angle (works for both mouse and touch)
-  const clientX = e.clientX || e.touches[0].clientX;
-  const clientY = e.clientY || e.touches[0].clientY;
-  initialAngle = getAngleFromCenterWithCoords(clientX, clientY, djDisc);
-  
-  if (isPlaying && source) {
-    source.onended = null;
-    source.stop();
-  }
-}
-
-// Updated getAngleFromCenter function that works with coordinates
-function getAngleFromCenterWithCoords(clientX, clientY, element) {
-  const rect = element.getBoundingClientRect();
-  const centerX = rect.left + rect.width / 2;
-  const centerY = rect.top + rect.height / 2;
-  let angle = Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
-  if (angle < 0) angle += 360;
-  return angle;
-}
-
-// Function to handle pointer move (mouse or touch)
-function handlePointerMove(e) {
-  if (!isDragging) return;
-  
-  // Get coordinates (works for both mouse and touch)
-  const clientX = e.clientX || e.touches[0].clientX;
-  const clientY = e.clientY || e.touches[0].clientY;
-  const newAngle = getAngleFromCenterWithCoords(clientX, clientY, djDisc);
-  
-  let angleDelta = newAngle - initialAngle;
-  
-  // Handle angle wrapping around 360
-  if (angleDelta > 180) angleDelta -= 360;
-  if (angleDelta < -180) angleDelta += 360;
-  
-  let newRotation = initialRotation + angleDelta;
-  // Normalize to 0-360
-  if (newRotation < 0) newRotation += 360;
-  if (newRotation >= 360) newRotation %= 360;
-  
-  djDisc.style.transform = `rotate(${newRotation}deg)`;
-  
-  // Calculate position in audio based on rotation
-  const newPosition = (newRotation / 360) * audioBuffer.duration;
-  currentTimeDisplay.textContent = formatTime(newPosition);
-  progressBar.value = newPosition;
-  currentPlaybackPosition = newPosition;
-  pausedAt = newPosition;
-}
-
-// Function to handle pointer up (mouse or touch)
-function handlePointerUp(e) {
-  if (!isDragging) return;
-  
-  isDragging = false;
-  
-  if (isPlaying) {
-    source = createSourceNode();
-    source.start(0, currentPlaybackPosition);
-    startTime = audioContext.currentTime - currentPlaybackPosition;
-    source.onended = () => {
-      if (isPlaying) stopAudio();
-      toggleButton.innerHTML = "►";
-    };
-  }
-}
-
-// Add mouse event listeners
-djDisc.addEventListener('mousedown', handlePointerDown);
-document.addEventListener('mousemove', handlePointerMove);
-document.addEventListener('mouseup', handlePointerUp);
-
-// Add touch event listeners
-djDisc.addEventListener('touchstart', handlePointerDown, { passive: false });
-document.addEventListener('touchmove', handlePointerMove, { passive: false });
-document.addEventListener('touchend', handlePointerUp);
-document.addEventListener('touchcancel', handlePointerUp);
-
+    
+    function handlePointerDown(e) {
+      if (!audioBuffer) return;
+      e.preventDefault();
+      if (e.target === toggleButton) {
+        return;
+      }
+      isDragging = true;
+      initialRotation = getCurrentRotation(djDisc);
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      initialAngle = getAngleFromCenterWithCoords(clientX, clientY, djDisc);
+      if (isPlaying && source) {
+        source.onended = null;
+        source.stop();
+      }
+    }
+    
+    function getAngleFromCenterWithCoords(clientX, clientY, element) {
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      let angle = Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+      if (angle < 0) angle += 360;
+      return angle;
+    }
+    
+    function handlePointerMove(e) {
+      if (!isDragging) return;
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      const newAngle = getAngleFromCenterWithCoords(clientX, clientY, djDisc);
+      let angleDelta = newAngle - initialAngle;
+      if (angleDelta > 180) angleDelta -= 360;
+      if (angleDelta < -180) angleDelta += 360;
+      let newRotation = initialRotation + angleDelta;
+      if (newRotation < 0) newRotation += 360;
+      if (newRotation >= 360) newRotation %= 360;
+      djDisc.style.transform = `rotate(${newRotation}deg)`;
+      const newPosition = (newRotation / 360) * audioBuffer.duration;
+      currentTimeDisplay.textContent = formatTime(newPosition);
+      progressBar.value = newPosition;
+      currentPlaybackPosition = newPosition;
+      pausedAt = newPosition;
+    }
+    
+    function handlePointerUp(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      if (isPlaying) {
+        source = createSourceNode();
+        source.start(0, currentPlaybackPosition);
+        startTime = audioContext.currentTime - currentPlaybackPosition;
+        source.onended = () => {
+          if (isPlaying) stopAudio();
+          toggleButton.innerHTML = "►";
+        };
+      }
+    }
+    
+    djDisc.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('mousemove', handlePointerMove);
+    document.addEventListener('mouseup', handlePointerUp);
+    djDisc.addEventListener('touchstart', handlePointerDown, { passive: false });
+    document.addEventListener('touchmove', handlePointerMove, { passive: false });
+    document.addEventListener('touchend', handlePointerUp);
+    document.addEventListener('touchcancel', handlePointerUp);
     
     toggleButton.addEventListener('click', togglePlayPause);
     
     function showLightBeams() {
-      lightBeams.style.opacity = '1';
-    }
+  lightBeams.style.opacity = '1';
+  updateLightBeamAnimations(parseFloat(speedSlider.value));
+}
     
     function hideLightBeams() {
       lightBeams.style.opacity = '0';
     }
     
     async function exportProcessedAudio() {
-      if (!audioBuffer) return alert("Please load an audio file first.");
-      
-      const playbackSpeed = parseFloat(speedSlider.value);
-      const newDuration = audioBuffer.duration / playbackSpeed;
-      const sampleRate = audioContext.sampleRate;
-      const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, sampleRate * newDuration, sampleRate);
-      
-      const offlineSource = offlineContext.createBufferSource();
-      offlineSource.buffer = audioBuffer;
-      offlineSource.playbackRate.value = playbackSpeed;
-      
-      const offlineGain = offlineContext.createGain();
-      offlineGain.gain.value = parseFloat(volumeSlider.value);
-      
-      const offlineConvolver = offlineContext.createConvolver();
-      offlineConvolver.buffer = impulseResponse;
-      
-      const offlineDryGain = offlineContext.createGain();
-      const offlineWetGain = offlineContext.createGain();
-      const reverbAmount = parseFloat(reverbSlider.value);
-      offlineDryGain.gain.value = 1 - reverbAmount;
-      offlineWetGain.gain.value = reverbAmount;
-      
-      offlineSource.connect(offlineDryGain);
-      offlineDryGain.connect(offlineGain);
-      
-      offlineSource.connect(offlineConvolver);
-      offlineConvolver.connect(offlineWetGain);
-      offlineWetGain.connect(offlineGain);
-      
-      offlineGain.connect(offlineContext.destination);
-      
-      offlineSource.start();
-      loadingScreen.style.display = 'flex';
-      loadingScreen.classList.remove('hidden');
-      
-      try {
-        const renderedBuffer = await offlineContext.startRendering();
-        hideLoadingScreen();
-        
-        const selectedFormat = formatSelect.value;
-        let blob;
-        if (selectedFormat === 'mp3') {
-          blob = encodeMP3(renderedBuffer);
-        } else {
-          blob = bufferToWav(renderedBuffer);
-        }
-        
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = selectedFormat === 'mp3' ? 'processed_audio.mp3' : 'processed_audio.wav';
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        hideLoadingScreen();
-        console.error("Error during offline rendering:", error);
-        alert("Error processing audio.");
-      }
+  if (!audioBuffer) return alert("Please load an audio file first.");
+  
+  const playbackSpeed = parseFloat(speedSlider.value);
+  const newDuration = audioBuffer.duration / playbackSpeed;
+  const sampleRate = audioContext.sampleRate;
+  const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, sampleRate * newDuration, sampleRate);
+  
+  const offlineSource = offlineContext.createBufferSource();
+  offlineSource.buffer = audioBuffer;
+  offlineSource.playbackRate.value = playbackSpeed;
+  
+  // Create offline EQ filters
+  const offlineEQBands = EQ_FREQUENCIES.map(freq => {
+    const filter = offlineContext.createBiquadFilter();
+    filter.type = 'peaking';
+    filter.frequency.value = freq;
+    filter.Q.value = 1;
+    return filter;
+  });
+  
+  // Set the gain values from the current EQ settings
+  eqBands.forEach((band, index) => {
+    offlineEQBands[index].gain.value = band.gain.value;
+  });
+  
+  const offlineGain = offlineContext.createGain();
+  offlineGain.gain.value = parseFloat(volumeSlider.value);
+  
+  const offlineConvolver = offlineContext.createConvolver();
+  offlineConvolver.buffer = impulseResponse;
+  
+  const offlineDryGain = offlineContext.createGain();
+  const offlineWetGain = offlineContext.createGain();
+  const reverbAmount = parseFloat(reverbSlider.value);
+  offlineDryGain.gain.value = 1 - reverbAmount;
+  offlineWetGain.gain.value = reverbAmount;
+  
+  // Connect source to first EQ band
+  offlineSource.connect(offlineEQBands[0]);
+  
+  // Connect EQ bands in series
+  for (let i = 0; i < offlineEQBands.length - 1; i++) {
+    offlineEQBands[i].connect(offlineEQBands[i + 1]);
+  }
+  
+  // Connect last EQ band to dry gain
+  offlineEQBands[offlineEQBands.length - 1].connect(offlineDryGain);
+  offlineDryGain.connect(offlineGain);
+  
+  // Also connect source to convolver for reverb
+  offlineSource.connect(offlineConvolver);
+  offlineConvolver.connect(offlineWetGain);
+  offlineWetGain.connect(offlineGain);
+  
+  offlineGain.connect(offlineContext.destination);
+  
+  offlineSource.start();
+  loadingScreen.style.display = 'flex';
+  loadingScreen.classList.remove('hidden');
+  
+  try {
+    const renderedBuffer = await offlineContext.startRendering();
+    hideLoadingScreen();
+    
+    const selectedFormat = formatSelect.value;
+    let blob;
+    if (selectedFormat === 'mp3') {
+      blob = encodeMP3(renderedBuffer);
+    } else {
+      blob = bufferToWav(renderedBuffer);
     }
+    
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = selectedFormat === 'mp3' ? 'processed_audio.mp3' : 'processed_audio.wav';
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    hideLoadingScreen();
+    console.error("Error during offline rendering:", error);
+    alert("Error processing audio.");
+  }
+}
+
     
     function bufferToWav(buffer) {
       let numOfChan = buffer.numberOfChannels,
@@ -1203,13 +1436,117 @@ document.addEventListener('touchcancel', handlePointerUp);
       }
     });
     
-    function showLightBeams() {
-      lightBeams.style.opacity = '1';
+    let eqBands = [];
+    const EQ_FREQUENCIES = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 16000];
+    
+    function setupEqualizer() {
+      eqBands = EQ_FREQUENCIES.map(freq => {
+        const filter = audioContext.createBiquadFilter();
+        filter.type = 'peaking';
+        filter.frequency.value = freq;
+        filter.gain.value = 0;
+        filter.Q.value = 1;
+        return filter;
+      });
+      
+      if (eqBands.length > 0) {
+        dryGainNode.disconnect();
+        dryGainNode.connect(eqBands[0]);
+        
+        for (let i = 0; i < eqBands.length - 1; i++) {
+          eqBands[i].connect(eqBands[i + 1]);
+        }
+        
+        eqBands[eqBands.length - 1].connect(gainNode);
+      }
     }
     
-    function hideLightBeams() {
-      lightBeams.style.opacity = '0';
+    function updateEQBand(index, value) {
+      if (eqBands[index]) {
+        eqBands[index].gain.value = parseFloat(value);
+        document.getElementById(`eqValue${index}`).textContent = value + ' dB';
+      }
     }
+    
+    function resetEqualizer() {
+      eqBands.forEach((band, index) => {
+        band.gain.value = 0;
+        document.getElementById(`eqSlider${index}`).value = 0;
+        document.getElementById(`eqValue${index}`).textContent = '0 dB';
+      });
+    }
+    
+    function createEQSliders() {
+      const container = document.querySelector('.eq-sliders');
+      EQ_FREQUENCIES.forEach((freq, index) => {
+        const sliderContainer = document.createElement('div');
+        sliderContainer.className = 'eq-slider-container';
+        
+        const label = document.createElement('label');
+        label.textContent = freq < 1000 ? `${freq} Hz` : `${freq/1000} kHz`;
+        
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.min = '-12';
+        slider.max = '12';
+        slider.step = '1';
+        slider.value = '0';
+        slider.id = `eqSlider${index}`;
+        slider.addEventListener('input', () => updateEQBand(index, slider.value));
+        
+        const value = document.createElement('span');
+        value.id = `eqValue${index}`;
+        value.textContent = '0 dB';
+        
+        sliderContainer.appendChild(label);
+        sliderContainer.appendChild(slider);
+        sliderContainer.appendChild(value);
+        container.appendChild(sliderContainer);
+      });
+    }
+    
+    const audioPresets = {
+      'flat': [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      'bass-boost': [10, 8, 6, 3, 0, 0, 0, 0, 0],
+      'treble-boost': [0, 0, 0, 0, 0, 3, 6, 8, 10],
+      'vocal-boost': [0, 0, 0, 3, 6, 6, 3, 0, 0],
+      'electronic': [4, 3, 0, -2, -3, 0, 3, 5, 6],
+      'rock': [4, 3, 2, 0, -1, 0, 2, 3, 4],
+      'classical': [2, 1, 0, 0, 0, 0, -1, -2, -3]
+    };
+    
+    function applyPreset(presetName) {
+      const preset = audioPresets[presetName];
+      if (preset) {
+        preset.forEach((value, index) => {
+          if (eqBands[index]) {
+            eqBands[index].gain.value = value;
+            document.getElementById(`eqSlider${index}`).value = value;
+            document.getElementById(`eqValue${index}`).textContent = value + ' dB';
+          }
+        });
+        
+        document.querySelectorAll('.preset-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.getElementById(`preset-${presetName}`).classList.add('active');
+      }
+    }
+    function setupEQToggle() {
+  const eqToggleBtn = document.getElementById('eqToggleBtn');
+  const eqPanel = document.getElementById('eqPanel');
+  const eqToggleIcon = eqToggleBtn.querySelector('.eq-toggle-icon');
+  
+  eqToggleBtn.addEventListener('click', function() {
+    eqPanel.classList.toggle('eq-hidden');
+    eqToggleIcon.classList.toggle('active');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  createEQSliders();
+  setupEQToggle();
+});
   </script>
 </body>
 </html>
