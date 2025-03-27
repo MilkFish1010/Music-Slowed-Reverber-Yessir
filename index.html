@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Music Reverber</title>
   <link rel="icon" type="image/x-icon" href="MilkFishicon.ico">
-  <!-- Include LameJS (download locally or via CDN) -->
   <script src="lame.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* Base styles */
     body {
@@ -298,7 +298,7 @@
     }
     #progressBar {
       width: 80%;
-      margin: 20px auto 5px auto;
+      margin: 2px auto 5px auto;
       display: block;
       cursor: pointer;
     }
@@ -511,14 +511,13 @@
       border: none;
       background: rgba(0,0,0,0.8);
       color: white;
-      font-size: 36px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, transform 0.2s ease;
       -webkit-tap-highlight-color: transparent;
       z-index: 100;
       position: relative;
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      padding: 0; /* Remove padding that might affect centering */
+      padding: 0;
     }
 
     .play-button:hover, .play-button:active {
@@ -526,31 +525,10 @@
       transform: scale(1.05);
     }
     
-    /* Add specific styles for the play and pause icons */
-    .play-icon {
-      display: inline-block;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 18px 0 18px 30px;
-      border-color: transparent transparent transparent #ffffff;
-      margin-left: 5px; /* Slight adjustment to center the triangle */
+    .play-button i {
+      font-size: 36px;
     }
     
-    .pause-icon {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .pause-icon span {
-      display: inline-block;
-      width: 10px;
-      height: 30px;
-      background-color: #ffffff;
-    }
-
     @media screen and (max-width: 768px) {
       .play-button {
         margin: 30px auto;
@@ -558,13 +536,8 @@
         height: 70px;
       }
       
-      .play-icon {
-        border-width: 15px 0 15px 25px;
-      }
-      
-      .pause-icon span {
-        width: 8px;
-        height: 25px;
+      .play-button i {
+        font-size: 30px;
       }
     }
     
@@ -574,15 +547,12 @@
         height: 60px;
       }
       
-      .play-icon {
-        border-width: 12px 0 12px 20px;
-      }
-      
-      .pause-icon span {
-        width: 7px;
-        height: 20px;
+      .play-button i {
+        font-size: 24px;
       }
     }
+    
+    
       .player-container {
         gap: 30px;
       }
@@ -843,6 +813,61 @@
     body.disco-active input[type="range"]:hover {
       animation: disco-pulse 1.5s infinite;
     }
+    .file-upload-container {
+  margin: 20px auto;
+  text-align: center;
+}
+
+#uploadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, rgba(77, 54, 208, 1) 0%, rgba(132, 116, 254, 1) 100%);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(77, 54, 208, 0.3);
+}
+
+#uploadButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(77, 54, 208, 0.4);
+}
+
+#uploadButton:active {
+  transform: translateY(1px);
+}
+
+body.disco-active #uploadButton {
+  background: linear-gradient(90deg, rgba(255, 64, 129, 0.8) 0%, rgba(255, 138, 101, 0.8) 100%);
+  box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3);
+}
+
+#selectedFileName {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+#iosMessage {
+  margin: 15px auto;
+  padding: 12px;
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  color: #856404;
+  max-width: 80%;
+}
+
+body.disco-active #iosMessage {
+  background: rgba(255, 64, 129, 0.1);
+  border-color: rgba(255, 64, 129, 0.3);
+  color: #ff4081;
+}
     
   </style>
 </head>
@@ -869,7 +894,28 @@
   <div class="container">
     <h1>Music Reverber</h1>
     <!-- File upload -->
-    <input type="file" id="audioFile" accept="audio/*" />
+    <div class="file-upload-container">
+      <input type="file" id="audioFile" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg" style="display:none;" />
+      <button class="button" id="uploadButton">
+        <i class="fas fa-upload"></i> Select Audio File
+      </button>
+      <div id="selectedFileName" style="margin-top: 10px; text-align: center;"></div>
+      <div id="iosMessage" style="display: none; margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 5px; text-align: center;">
+        <p><strong>iOS Users:</strong> If you're having trouble uploading audio files, try using the Files app to access your audio files.</p>
+      </div>
+      <div class="ios-fallback" style="display: none; margin: 20px auto; text-align: center; max-width: 600px;">
+        <h3>Alternative Method for iOS Users</h3>
+        <p>If you're still having trouble uploading audio files, you can try these steps:</p>
+        <ol style="text-align: left; display: inline-block;">
+          <li>Open the Files app on your iOS device</li>
+          <li>Navigate to your audio file</li>
+          <li>Tap and hold the file until a menu appears</li>
+          <li>Select "Share" or "Share via"</li>
+          <li>Choose "Copy to Music Reverber" or select your browser</li>
+        </ol>
+        <p>You can also try using Safari browser which has better file handling support.</p>
+      </div>
+    </div>
     <!-- Inline error message -->
     <div id="errorMessage" style="display:none;">
       No file selected.
@@ -917,7 +963,7 @@
         </div>
         <!-- Play/Pause toggle button -->
         <button id="toggleButton" class="play-button">
-          <div class="play-icon"></div>
+          <i class="fas fa-play"></i>
         </button>
         <br />
         <input type="range" id="progressBar" min="0" max="100" step="0.1" value="0" disabled />
@@ -1163,18 +1209,18 @@
       }
       
       async function togglePlayPause(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        if (!audioBuffer) return;
-        
-        if (!isPlaying) {
-            await playAudio();
-            toggleButton.innerHTML = '<div class="pause-icon"><span></span><span></span></div>';
-        } else {
-            pauseAudio();
-            toggleButton.innerHTML = '<div class="play-icon"></div>';
-        }
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (!audioBuffer) return;
+      
+      if (!isPlaying) {
+        await playAudio();
+        toggleButton.innerHTML = '<i class="fas fa-pause"></i>';
+      } else {
+        pauseAudio();
+        toggleButton.innerHTML = '<i class="fas fa-play"></i>';
+      }
     }
     
       
@@ -1206,7 +1252,7 @@
         startProgressUpdate();
         source.onended = () => {
           if (isPlaying) stopAudio();
-          toggleButton.innerHTML = "►";
+          toggleButton.innerHTML = '<i class="fas fa-play"></i>';
         };
       }
       
@@ -1235,7 +1281,7 @@
         pausedAt = 0;
         progressBar.value = 0;
         currentTimeDisplay.textContent = formatTime(0);
-        toggleButton.innerHTML = '<div class="play-icon"></div>';
+        toggleButton.innerHTML = '<i class="fas fa-play"></i>'; 
         hideDancingImage();
         hideLightBeams();
         disableDiscoTheme();
@@ -1264,7 +1310,7 @@
           startTime = audioContext.currentTime - position;
           source.onended = () => {
             if (isPlaying) stopAudio();
-            toggleButton.innerHTML = "►";
+            toggleButton.innerHTML = '<i class="fas fa-play"></i>';
           };
         } else {
           currentPlaybackPosition = position;
@@ -1351,7 +1397,7 @@
           startTime = audioContext.currentTime - position;
           source.onended = () => {
             if (isPlaying) stopAudio();
-            toggleButton.innerHTML = "►";
+            toggleButton.innerHTML = '<i class="fas fa-play"></i>';
           };
         } else {
           currentPlaybackPosition = position;
@@ -1456,7 +1502,7 @@
           startTime = audioContext.currentTime - currentPlaybackPosition;
           source.onended = () => {
             if (isPlaying) stopAudio();
-            toggleButton.innerHTML = "►";
+            toggleButton.innerHTML = '<i class="fas fa-play"></i>';
           };
         }
       }
@@ -1640,7 +1686,7 @@
           durationDisplay.textContent = formatTime(audioBuffer.duration);
           currentPlaybackPosition = 0;
           pausedAt = 0;
-          toggleButton.innerHTML = "►";
+          toggleButton.innerHTML = '<i class="fas fa-play"></i>';
           
           hideLoadingScreen();
         } catch (error) {
@@ -1773,7 +1819,50 @@
         dancingImage.removeEventListener('animationend', handler);
       });
     }
-    
+
+    // Improved file upload handling for iOS
+document.addEventListener('DOMContentLoaded', function() {
+  const uploadButton = document.getElementById('uploadButton');
+  const audioFileInput = document.getElementById('audioFile');
+  const selectedFileName = document.getElementById('selectedFileName');
+  const iosMessage = document.getElementById('iosMessage');
+  
+  // Check if the device is iOS
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  
+  if (isIOS) {
+    iosMessage.style.display = 'block';
+  }
+  
+  uploadButton.addEventListener('click', function() {
+    audioFileInput.click();
+  });
+  
+  audioFileInput.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      selectedFileName.textContent = 'Selected file: ' + file.name;
+    } else {
+      selectedFileName.textContent = 'No file selected';
+    }
+  });
+});
+
+// Add a function to handle files from iOS Files app
+function handleIOSFilePicker() {
+  return new Promise((resolve, reject) => {
+    // This is a placeholder for a more complex iOS file handling
+    // In a real implementation, you might need to use a third-party library
+    alert("Please use the file selector button to choose an audio file.");
+    reject("Not implemented");
+  });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      document.querySelector('.ios-fallback').style.display = 'block';
+    }
+  });
       
       document.addEventListener('DOMContentLoaded', function() {
         createEQSliders();
