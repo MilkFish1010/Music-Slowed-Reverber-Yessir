@@ -42,12 +42,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin: 0 auto;
       gap: 15px;
       padding: 10px;
       background: rgba(0,0,0,0.05);
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      width: 150px;
+      width: 190px;
     }
     .contact-sidebar img.logo {
       width: 80px;
@@ -928,24 +929,6 @@ body.disco-active #iosMessage {
       <!-- Visual container with sidebar and disc -->
       <div class="visual-container">
         <div class="visual-wrapper">
-          <!-- Contact Sidebar -->
-          <div class="contact-sidebar">
-      
-            <img src="MilkFishicon.ico" alt="Logo" class="logo" />
-            <ul>
-              <li>
-                <a href="https://github.com/MilkFish1010" target="_blank">
-                  <img src="github_icon.png" alt="GitHub" class="icon" />MilkFish1010
-                </a>
-              </li>
-              <li>
-                <a href="https://x.com/milkihm" target="_blank">
-                  <img src="twitter_icon.png" alt="Twitter" class="icon" />
-                </a>
-              </li>
-              <li>Email: astro101023@gmail.<br>com</li>
-            </ul>
-          </div>
           <!-- Disc Container -->
           <div id="discContainer">
             <div id="djDisc" class="disc"></div>
@@ -1016,9 +999,27 @@ body.disco-active #iosMessage {
         </div>
       </div>
     </div>
-    
+    <!-- Contact Sidebar -->
+    <div class="contact-sidebar">
+      
+      <img src="MilkFishicon.ico" alt="Logo" class="logo" />
+      <ul>
+        <li>
+          <a href="https://github.com/MilkFish1010" target="_blank">
+            <img src="github_icon.png" alt="GitHub" class="icon" />MilkFish1010
+          </a>
+        </li>
+        <li>
+          <br>
+          <a href="https://x.com/milkihm" target="_blank">
+            <img src="twitter_icon.png" alt="Twitter" class="icon" />
+          </a>
+        </li>
+        <br>
+        <li>Email: astro101023@gmail.com</li>
+      </ul>
+    </div>
     <script>
-      // (JavaScript remains unchanged)
       // Helper functions for MP3 encoding
       function floatTo16BitPCM(float32Array) {
         const int16Array = new Int16Array(float32Array.length);
