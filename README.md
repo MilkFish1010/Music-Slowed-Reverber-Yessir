@@ -1,4 +1,4 @@
-# Very Simpley Complexed Music Processor
+# Very Simply Complexed Music Processor
  It slows and reverbs music
 
 
