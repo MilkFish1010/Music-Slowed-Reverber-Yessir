@@ -128,7 +128,7 @@
     }
     /* Disco Ball positioned at the top right */
     #discoBall {
-      position: absolute;
+      position: fixed;
       top: 0;
       right: 0;
       transform: translate(-50%, 0) scale(0) rotate(0deg);
@@ -904,15 +904,6 @@ body.disco-active #iosMessage {
         <p><strong>iOS Users:</strong> If you're having trouble uploading audio files, try using the Files app to access your audio files.</p>
       </div>
       <div class="ios-fallback" style="display: none; margin: 20px auto; text-align: center; max-width: 600px;">
-        <h3>Alternative Method for iOS Users</h3>
-        <p>If you're still having trouble uploading audio files, you can try these steps:</p>
-        <ol style="text-align: left; display: inline-block;">
-          <li>Open the Files app on your iOS device</li>
-          <li>Navigate to your audio file</li>
-          <li>Tap and hold the file until a menu appears</li>
-          <li>Select "Share" or "Share via"</li>
-          <li>Choose "Copy to Music Reverber" or select your browser</li>
-        </ol>
         <p>You can also try using Safari browser which has better file handling support.</p>
       </div>
     </div>
@@ -1169,7 +1160,7 @@ body.disco-active #iosMessage {
       function updateDancingAnimation() {
         const playbackSpeed = parseFloat(speedSlider.value);
         dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
-        ledText.style.animationDuration = (10 / playbackSpeed) + 's';
+        ledText.style.animationDuration = (20 / playbackSpeed) + 's';
         updateLightBeamAnimations(playbackSpeed);
       }
       
