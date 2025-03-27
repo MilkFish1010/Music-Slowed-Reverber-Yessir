@@ -1,4 +1,4 @@
-# Music Slowed Reverber Yessir
+# Very Simpley Complexed Music Processor
  It slows and reverbs music
 
 
