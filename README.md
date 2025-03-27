@@ -7,4 +7,3 @@ Things I might change:
 - Transition animations by playback speed
 - Random BG
 - Loop
-- Audio file fix phones
