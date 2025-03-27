@@ -1,898 +1,889 @@
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Music Reverber</title>
-    <!-- Include LameJS (download locally or via CDN) -->
-    <script src="lame.min.js"></script>
-    <style>
-      /* Base styles */
-      body {
-        font-family: Arial, sans-serif;
-        background: #f5f5f5;
-        margin: 0;
-        padding: 20px;
-        transition: background 0.5s ease, color 0.5s ease;
-      }
-      h1 {
-        text-align: center;
-        color: #333;
-        transition: color 0.5s ease;
-      }
-      .container {
-        max-width: 1000px;
-        background: #fff;
-        margin: 20px auto;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        transition: background 0.5s ease;
-      }
-      /* LED scroll styles */
-      .led-scroll {
-    position: fixed;
-    top: 0;
-    left: 0; /* Ensure it starts from the very left edge */
-    width: 100%; /* Make it full width instead of 98% */
-    background: #000;
-    color: #ff4081;
-    font-family: 'Courier New', monospace;
-    font-size: 24px;
-    white-space: nowrap;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    padding: 5px 0;
-    z-index: 1000;
-    display: none;
-    margin: 0; /* Remove any margin */
-  }
-      .led-scroll span {
-        display: inline-block;
-        /* Ensure the span is wide enough to scroll completely */
-        min-width: 100%;
-        animation: scrollText 10s linear infinite;
-      }
-      @keyframes scrollText {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-      }
-      /* Disco/night mode */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Reverber</title>
+  <link rel="icon" type="image/x-icon" href="MilkFishicon.ico">
+  <!-- Include LameJS (download locally or via CDN) -->
+  <script src="lame.min.js"></script>
+  <style>
+    /* Base styles */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      transition: color 0.5s ease;
+    }
+    .container {
+      max-width: 1000px;
+      background: #fff;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: background 0.5s ease;
+    }
+    /* Contact sidebar styles */
+    .visual-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .contact-sidebar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      padding: 10px;
+      background: rgba(0,0,0,0.05);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      width: 150px;
+    }
+    .contact-sidebar img.logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #333;
+    }
+    .contact-sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: center;
+    }
+    .contact-sidebar li {
+      margin: 5px 0;
+    }
+    .contact-sidebar a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .contact-sidebar img.icon {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+    /* LED scroll styles */
+    .led-scroll {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #000;
+      color: #ff4081;
+      font-family: 'Courier New', monospace;
+      font-size: 24px;
+      white-space: nowrap;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      padding: 5px 0;
+      z-index: 1000;
+      display: none;
+      margin: 0;
+    }
+    .led-scroll span {
+      display: inline-block;
+      min-width: 100%;
+      animation: scrollText 10s linear infinite;
+    }
+    @keyframes scrollText {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    /* Disco/night mode */
+    body.disco-active {
+      background: #000;
+      color: #eee;
+      background-image: url('discobg.gif');
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+    @media screen and (max-width: 768px) {
       body.disco-active {
-        background: #000;
-        color: #eee;
-        background-image: url('discobg.gif');
-        background-size: cover;
-        background-repeat: no-repeat;
+        background-image: url('discobg2.gif');
       }
-      @media screen and (max-width: 768px) {
-        body.disco-active {
-          background-image: url('discobg2.gif');
-        }
+    }
+    @media screen and (max-width: 480px) {
+      body.disco-active {
+        background-image: url('discobg3.gif');
       }
-      @media screen and (max-width: 480px) {
-        body.disco-active {
-          background-image: url('discobg3.gif');
-        }
-      }
-      body.disco-active h1 {
-        color: #ff4081;
-      }
-      body.disco-active .container {
-        background: #222;
-      }
-      /* Disco Ball now positioned at the top right */
+    }
+    body.disco-active h1 {
+      color: #ff4081;
+    }
+    body.disco-active .container {
+      background: #222;
+    }
+    /* Disco Ball positioned at the top right */
+    #discoBall {
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translate(-50%, 0) scale(0) rotate(0deg);
+      opacity: 0;
+      z-index: 10000;
+      width: 220px;
+      height: 220px;
+    }
+    @media screen and (max-width: 768px) {
       #discoBall {
-        position: absolute;
         top: 0;
         right: 0;
         transform: translate(-50%, 0) scale(0) rotate(0deg);
-        opacity: 0;
-        z-index: 10000;
-        width: 220px;
-        height: 220px;
-      }
-      @media screen and (max-width: 768px) {
-        #discoBall {
-          top: 0;
-          right: 0;
-          transform: translate(-50%, 0) scale(0) rotate(0deg);
-          width: 100px;
-          height: 100px;
-        }
-      }
-      #discoBall.active {
-        animation: discoIn 0.8s forwards;
-      }
-      #discoBall.out {
-        animation: discoOut 0.8s forwards;
-      }
-      @keyframes discoIn {
-        0% { transform: translate(-50%, 0) translateY(-100px) scale(0) rotate(0deg); opacity: 0; }
-        100% { transform: translate(-50%, 0) translateY(0) scale(1) rotate(720deg); opacity: 1; }
-      }
-      @keyframes discoOut {
-        0% { transform: translate(-50%, 0) translateY(0) scale(1) rotate(720deg); opacity: 1; }
-        100% { transform: translate(-50%, 0) translateY(-100px) scale(0) rotate(1080deg); opacity: 0; }
-      }
-      /* Player and controls */
-      .player-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        align-items: flex-start;
-        justify-content: center;
-      }
-      .visual-container {
-        position: relative;
-        flex: 1 1 400px;
-        text-align: center;
-      }
-      #discContainer {
-        position: relative;
-        margin: 0 auto;
-    width: 180px;
-    height: 180px;
-    padding: 15px;
-      }
-      .disc {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        background: radial-gradient(circle, #888, #333);
-        border: 4px solid #555;
-        position: relative;
-        transform: rotate(0deg);
-        cursor: pointer;
-        touch-action: none; /* Prevents browser handling of touch gestures */
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10+ */
-    user-select: none; /* Standard syntax */
-    background-image: url('disc.jpg');
-    background-size: cover;
-      }
-      #toggleButton {
-    min-width: 60px; /* Ensure button is large enough for touch */
-    min-height: 60px; /* Ensure button is large enough for touch */
-  }
-
-  input[type="range"] {
-    height: 30px; /* Make sliders easier to grab on touch devices */
-  }
-
-
-      .disc::before {
-        content: "";  
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 40px;
-        height: 40px;
-        background: #eee4e4;
-        border-radius: 50%;
-        box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
-      }
-      .disc::after {
-        content: "";
-        position: absolute;
-        top: -4px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 4px;
-        height: 20px;
-        background: #410d0d;
-        border-radius: 2px;
-      }
-      #toggleButton {
-        display: block;
-        margin: 20px auto;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(0,0,0,0.6);
-        color: white;
-        font-size: 30px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-      #toggleButton:hover {
-        background: rgba(0,0,0,0.8);
-      }
-      #dancingImage {
-        position: absolute;
-        top: 50%;
-        left: calc(100% + 20px);
         width: 100px;
         height: 100px;
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        transform: translateY(-50%);
-        animation: dance 2s infinite;
       }
-      @keyframes dance {
-        0%   { transform: translateY(-50%) translateX(0); }
-        25%  { transform: translateY(-50%) translateX(20px); }
-        50%  { transform: translateY(-50%) translateX(0); }
-        75%  { transform: translateY(-50%) translateX(-20px); }
-        100% { transform: translateY(-50%) translateX(0); }
-      }
-      #progressBar {
-        width: 80%;
-        margin: 20px auto 5px auto;
-        display: block;
-        cursor: pointer;
-      }
-      .time-display-container {
-        display: flex;
-        justify-content: space-between;
-        width: 80%;
-        margin: 0 auto;
-        font-family: monospace;
-      }
-      .controls-container {
-        flex: 1 1 250px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-      .control-group {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-      }
-      .control-group label {
-        font-weight: bold;
-      }
-      .slider-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      .slider-container input[type="range"] {
-        width: 100%;
-      }
-      .slider-container span {
-        margin-top: 5px;
-      }
-      .button-group button {
-        background: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      .button-group button:hover {
-        background: #45a049;
-      }
-      #audioFile {
-        display: block;
-        margin: 10px auto 20px auto;
-      }
-      .button {
-        line-height: 1;
-        background-color: transparent;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.35em;
-        padding: 0.75em 1em;
-        color: #fff;
-        border: 1px solid transparent;
-        font-weight: 700;
-        border-radius: 2em;
-        font-size: 1rem;
-        box-shadow: 0 0.7em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
-        transition: transform 0.3s;
-        margin: auto;
-        background: linear-gradient(
-          90deg,
-          rgba(77, 54, 208, 1) 0%,
-          rgba(132, 116, 254, 1) 100%
-        );
-      }
-      body.disco-active .button {
-    background: linear-gradient(90deg, rgba(255, 64, 129, 0.8) 0%, rgba(255, 138, 101, 0.8) 100%);
-    box-shadow: 0 0.7em 1.5em -0.5em hsla(305, 100%, 83%, 0.745);
-  }
-      .button:hover {
-        border-color: #f4f5f2;
-      }
-      .button:active {
-        transform: scale(0.98);
-        box-shadow: 0 0.5em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
-      }
-      #errorMessage {
-        text-align: center;
-        color: red;
-        font-weight: bold;
-        margin: 10px auto;
-      }
-      #errorMessage img {
-        display: block;
-        margin: 10px auto;
-        width: 150px;
-        height: 150px;
-      }
-      #loadingScreen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 9999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        opacity: 1;
-        transition: opacity 0.5s ease;
-      }
-      #loadingScreen.hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
-      #loadingScreen img {
-        width: 150px;
-        height: 150px;
-        animation: bounce 2s infinite;
-      }
-      @keyframes bounce {
-        0%   { transform: translateX(-50px); }
-        50%  { transform: translateX(50px); }
-        100% { transform: translateX(-50px); }
-      }
-      /* Light beams styles */
-      .light-beams-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 9000;
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        overflow: hidden;
-      }
-      .light-beam {
-        position: absolute;
-        width: 5px;
-        height: 100vh;
-        background: linear-gradient(to bottom, 
-          rgba(255, 255, 255, 0.9), 
-          rgba(255, 217, 0, 0.7), 
-          rgba(255, 0, 128, 0.5)
-        );
-        transform-origin: top center;
-        /* Default duration, will be updated by JS */
-        animation: beam-sweep 2s infinite;
-        box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.7);
-        opacity: 0.7;
-      }
-      .beam1 {
-        left: 20%;
-        animation-delay: 0s;
-        transform: rotate(-20deg);
-      }
-      .beam2 {
-        left: 35%;
-        animation-delay: 0.4s;
-        transform: rotate(-10deg);
-      }
-      .beam3 {
-        left: 50%;
-        animation-delay: 0.8s;
-        transform: rotate(0deg);
-      }
-      .beam4 {
-        left: 65%;
-        animation-delay: 1.2s;
-        transform: rotate(10deg);
-      }
-      .beam5 {
-        left: 80%;
-        animation-delay: 1.6s;
-        transform: rotate(20deg);
-      }
-      @keyframes beam-sweep {
-        0% {
-          opacity: 0.2;
-          transform: rotate(-30deg);
-        }
-        50% {
-          opacity: 0.7;
-          transform: rotate(30deg);
-        }
-        100% {
-          opacity: 0.2;
-          transform: rotate(-30deg);
-        }
-      }
-      @media screen and (max-width: 768px) {
-        .light-beam {
-          width: 3px;
-        }
-        .beam1 { left: 10%; }
-        .beam2 { left: 30%; }
-        .beam3 { left: 50%; }
-        .beam4 { left: 70%; }
-        .beam5 { left: 90%; }
-      }
-      /* Add these styles to your existing <style> section */
-  .play-button {
-    display: block;
-    margin: 20px auto;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    font-size: 36px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    -webkit-tap-highlight-color: transparent;
-    z-index: 100;
-    position: relative;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  }
-
-  .play-button:hover, .play-button:active {
-    background: rgba(255,64,129,0.9);
-    transform: scale(1.05);
-  }
-
-
-
-  /* Ensure proper spacing on mobile */
-  @media screen and (max-width: 768px) {
-    .play-button {
-      margin: 30px auto;
     }
-    
+    #discoBall.active {
+      animation: discoIn 0.8s forwards;
+    }
+    #discoBall.out {
+      animation: discoOut 0.8s forwards;
+    }
+    @keyframes discoIn {
+      0% { transform: translate(-50%, 0) translateY(-100px) scale(0) rotate(0deg); opacity: 0; }
+      100% { transform: translate(-50%, 0) translateY(0) scale(1) rotate(720deg); opacity: 1; }
+    }
+    @keyframes discoOut {
+      0% { transform: translate(-50%, 0) translateY(0) scale(1) rotate(720deg); opacity: 1; }
+      100% { transform: translate(-50%, 0) translateY(-100px) scale(0) rotate(1080deg); opacity: 0; }
+    }
+    /* Player and controls */
     .player-container {
-      gap: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-start;
+      justify-content: center;
     }
-  }
-  .visualizer-container {
-    width: 100%;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-
-  #visualizer {
-    width: 100%;
-    height: 150px;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin-bottom: 10px;
-  }
-
-  #visualizerModeBtn {
-    font-size: 0.8rem;
-    padding: 5px 10px;
-    margin-bottom: 10px;
-  }
-  .eq-container {
-    margin-top: 30px;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 8px;
-  }
-
-  .eq-container h3 {
-    margin-top: 0;
-    text-align: center;
-  }
-
-  .eq-sliders {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .eq-slider-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1 1 80px;
-  }
-
-  .eq-slider-container label {
-    font-size: 0.8rem;
-    margin-bottom: 5px;
-  }
-
-  .eq-slider-container input[type="range"] {
-    height: 100px;
-    margin: 0;
-    writing-mode: bt-lr; /* IE */
-    -webkit-appearance: slider-vertical; /* WebKit */
-    width: 20px;
-    appearance: slider-vertical
-  }
-
-  .eq-slider-container span {
-    font-size: 0.8rem;
-    margin-top: 5px;
-  }
-  .presets-container {
-    margin: 20px 0;
-  }
-
-  .presets-container h4 {
-    margin-top: 0;
-    text-align: center;
-  }
-
-  .preset-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
-  .preset-button {
-    background: #333;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-  }
-
-  .preset-button:hover {
-    background: #555;
-  }
-
-  .preset-button.active {
-    background: #ff4081;
-    box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
-  }
-  /* Add these styles to your existing <style> section */
+    .visual-container {
+      position: relative;
+      flex: 1 1 400px;
+      text-align: center;
+    }
+    #discContainer {
+      position: relative;
+      margin: 0 auto;
+      width: 180px;
+      height: 180px;
+      padding: 10px;
+    }
+    .disc {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #888, #333);
+      border: 4px solid #555;
+      position: relative;
+      transform: rotate(0deg);
+      cursor: pointer;
+      touch-action: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      background-image: url('disc.jpg');
+      background-size: cover;
+    }
+    #toggleButton {
+      min-width: 60px;
+      min-height: 60px;
+    }
+    input[type="range"] {
+      height: 30px;
+    }
+    .disc::before {
+      content: "";  
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: #eee4e4;
+      border-radius: 50%;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+    }
+    .disc::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 20px;
+      background: #410d0d;
+      border-radius: 2px;
+    }
+    #toggleButton {
+      display: block;
+      margin: 20px auto;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #toggleButton:hover {
+      background: rgba(0,0,0,0.8);
+    }
+    #dancingImage {
+      position: sticky;
+      top: 50%;
+      left: calc(100% + 20px);
+      width: 100px;
+      height: 100px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      transform: translateY(-50%);
+      animation: dance 2s infinite;
+    }
+    @keyframes dance {
+      0%   { transform: translateY(-50%) translateX(0); }
+      25%  { transform: translateY(-50%) translateX(20px); }
+      50%  { transform: translateY(-50%) translateX(0); }
+      75%  { transform: translateY(-50%) translateX(-20px); }
+      100% { transform: translateY(-50%) translateX(0); }
+    }
+    #progressBar {
+      width: 80%;
+      margin: 20px auto 5px auto;
+      display: block;
+      cursor: pointer;
+    }
+    .time-display-container {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      margin: 0 auto;
+      font-family: monospace;
+    }
+    .controls-container {
+      flex: 1 1 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .control-group label {
+      font-weight: bold;
+    }
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .slider-container input[type="range"] {
+      width: 100%;
+    }
+    .slider-container span {
+      margin-top: 5px;
+    }
+    .button-group button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .button-group button:hover {
+      background: #45a049;
+    }
+    #audioFile {
+      display: block;
+      margin: 10px auto 20px auto;
+    }
+    .button {
+      line-height: 1;
+      background-color: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35em;
+      padding: 0.75em 1em;
+      color: #fff;
+      border: 1px solid transparent;
+      font-weight: 700;
+      border-radius: 2em;
+      font-size: 1rem;
+      box-shadow: 0 0.7em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
+      transition: transform 0.3s;
+      margin: auto;
+      background: linear-gradient(
+        90deg,
+        rgba(77, 54, 208, 1) 0%,
+        rgba(132, 116, 254, 1) 100%
+      );
+    }
+    body.disco-active .button {
+      background: linear-gradient(90deg, rgba(255, 64, 129, 0.8) 0%, rgba(255, 138, 101, 0.8) 100%);
+      box-shadow: 0 0.7em 1.5em -0.5em hsla(305, 100%, 83%, 0.745);
+    }
+    .button:hover {
+      border-color: #f4f5f2;
+    }
+    .button:active {
+      transform: scale(0.98);
+      box-shadow: 0 0.5em 1.5em -0.5em hsla(249, 62%, 51%, 0.745);
+    }
+    #errorMessage {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      margin: 10px auto;
+    }
+    #errorMessage img {
+      display: block;
+      margin: 10px auto;
+      width: 150px;
+      height: 150px;
+    }
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    #loadingScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #loadingScreen img {
+      width: 150px;
+      height: 150px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%   { transform: translateX(-50px); }
+      50%  { transform: translateX(50px); }
+      100% { transform: translateX(-50px); }
+    }
+    /* Light beams styles */
+    .light-beams-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9000;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      overflow: hidden;
+    }
+    .light-beam {
+      position: absolute;
+      width: 5px;
+      height: 100vh;
+      background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 0.9), 
+        rgba(255, 217, 0, 0.7), 
+        rgba(255, 0, 128, 0.5)
+      );
+      transform-origin: top center;
+      animation: beam-sweep 2s infinite;
+      box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.7);
+      opacity: 0.7;
+    }
+    .beam1 {
+      left: 20%;
+      animation-delay: 0s;
+      transform: rotate(-20deg);
+    }
+    .beam2 {
+      left: 35%;
+      animation-delay: 0.4s;
+      transform: rotate(-10deg);
+    }
+    .beam3 {
+      left: 50%;
+      animation-delay: 0.8s;
+      transform: rotate(0deg);
+    }
+    .beam4 {
+      left: 65%;
+      animation-delay: 1.2s;
+      transform: rotate(10deg);
+    }
+    .beam5 {
+      left: 80%;
+      animation-delay: 1.6s;
+      transform: rotate(20deg);
+    }
+    @keyframes beam-sweep {
+      0% {
+        opacity: 0.2;
+        transform: rotate(-30deg);
+      }
+      50% {
+        opacity: 0.7;
+        transform: rotate(30deg);
+      }
+      100% {
+        opacity: 0.2;
+        transform: rotate(-30deg);
+      }
+    }
+    @media screen and (max-width: 768px) {
+      .light-beam {
+        width: 3px;
+      }
+      .beam1 { left: 10%; }
+      .beam2 { left: 30%; }
+      .beam3 { left: 50%; }
+      .beam4 { left: 70%; }
+      .beam5 { left: 90%; }
+    }
+    /* Play button styles */
+    .play-button {
+      display: block;
+      margin: 20px auto;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      font-size: 36px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+      z-index: 100;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .play-button:hover, .play-button:active {
+      background: rgba(255,64,129,0.9);
+      transform: scale(1.05);
+    }
+    @media screen and (max-width: 768px) {
+      .play-button {
+        margin: 30px auto;
+      }
+      .player-container {
+        gap: 30px;
+      }
+    }
+    .visualizer-container {
+      width: 100%;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    #visualizer {
+      width: 100%;
+      height: 150px;
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    #visualizerModeBtn {
+      font-size: 0.8rem;
+      padding: 5px 10px;
+      margin-bottom: 10px;
+    }
+    .eq-container {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+    }
+    .eq-container h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+    .eq-sliders {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .eq-slider-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1 1 80px;
+    }
+    .eq-slider-container label {
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+    }
+    .eq-slider-container input[type="range"] {
+      height: 100px;
+      margin: 0;
+      writing-mode: bt-lr;
+      -webkit-appearance: slider-vertical;
+      width: 20px;
+      appearance: slider-vertical
+    }
+    .eq-slider-container span {
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+    .presets-container {
+      margin: 20px 0;
+    }
+    .presets-container h4 {
+      margin-top: 0;
+      text-align: center;
+    }
+    .preset-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .preset-button {
+      background: #333;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    .preset-button:hover {
+      background: #555;
+    }
+    .preset-button.active {
+      background: #ff4081;
+      box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
+    }
     .eq-toggle-container {
-    margin-top: 30px;
-    width: 100%;
-  }
-
-  .eq-toggle-btn {
-    width: 100%;
-    background: linear-gradient(90deg, rgba(77, 54, 208, 0.8) 0%, rgba(132, 116, 254, 0.8) 100%);
-    color: white;
-    border: none;
-    border-radius: 8px 8px 0 0;
-    padding: 12px 15px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-
-  .eq-toggle-btn:hover {
-    background: linear-gradient(90deg, rgba(77, 54, 208, 1) 0%, rgba(132, 116, 254, 1) 100%);
-  }
-
-  .eq-toggle-icon {
-    transition: transform 0.3s ease;
-    display: inline-block;
-  }
-
-  .eq-toggle-icon.active {
-    transform: rotate(180deg);
-  }
-
-  .eq-container {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 0 0 8px 8px;
-    padding: 20px;
-    transition: max-height 0.5s ease, opacity 0.3s ease, transform 0.3s ease;
-    overflow: hidden;
-    max-height: 1000px;
-    opacity: 1;
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-  .eq-hidden {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-    pointer-events: none;
-  }
-
-  /* Adjust existing EQ styles to match the new design */
-  .eq-container h3 {
-    margin-top: 0;
-    text-align: center;
-    color: #333;
-  }
-
-  body.disco-active .eq-toggle-btn {
-    background: linear-gradient(90deg, rgba(255, 64, 129, 0.8) 0%, rgba(255, 128, 171, 0.8) 100%);
-  }
-
-  body.disco-active .eq-toggle-btn:hover {
-    background: linear-gradient(90deg, rgba(255, 64, 129, 1) 0%, rgba(255, 128, 171, 1) 100%);
-  }
-
-  body.disco-active .eq-container {
-    background: rgba(50, 50, 50, 0.7);
-  }
-
-  body.disco-active .eq-container h3,
-  body.disco-active .eq-container h4 {
-    color: #fff;
-  }
-
-/* Specific styles for vertical EQ sliders in disco mode */
-body.disco-active .eq-slider-container input[type="range"] {
-  /* Preserve the vertical orientation */
-  -webkit-appearance: slider-vertical;
-  writing-mode: bt-lr;
-  height: 100px;
-  width: 20px;
-  appearance: slider-vertical;
+      margin-top: 30px;
+      width: 100%;
+    }
+    .eq-toggle-btn {
+      width: 100%;
+      background: linear-gradient(90deg, rgba(77, 54, 208, 0.8) 0%, rgba(132, 116, 254, 0.8) 100%);
+      color: white;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      padding: 12px 15px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .eq-toggle-btn:hover {
+      background: linear-gradient(90deg, rgba(77, 54, 208, 1) 0%, rgba(132, 116, 254, 1) 100%);
+    }
+    .eq-toggle-icon {
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+    .eq-toggle-icon.active {
+      transform: rotate(180deg);
+    }
+    .eq-container {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 0 0 8px 8px;
+      padding: 20px;
+      transition: max-height 0.5s ease, opacity 0.3s ease, transform 0.3s ease;
+      overflow: hidden;
+      max-height: 1000px;
+      opacity: 1;
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .eq-hidden {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+    }
+    body.disco-active .eq-toggle-btn {
+      background: linear-gradient(90deg, rgba(255, 64, 129, 0.8) 0%, rgba(255, 128, 171, 0.8) 100%);
+    }
+    body.disco-active .eq-toggle-btn:hover {
+      background: linear-gradient(90deg, rgba(255, 64, 129, 1) 0%, rgba(255, 128, 171, 1) 100%);
+    }
+    body.disco-active .eq-container {
+      background: rgba(50, 50, 50, 0.7);
+    }
+    body.disco-active .eq-container h3,
+    body.disco-active .eq-container h4 {
+      color: #fff;
+    }
+    body.disco-active .eq-slider-container input[type="range"] {
+      -webkit-appearance: slider-vertical;
+      writing-mode: bt-lr;
+      height: 100px;
+      width: 20px;
+      appearance: slider-vertical;
+      background: #333;
+      border: 1px solid #ff4081;
+      box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
+    }
+    body.disco-active .eq-slider-container input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 25px;
+      height: 15px;
+      border-radius: 7px;
+      background: #ff4081;
+      box-shadow: 0 0 10px rgba(255, 64, 129, 0.8);
+      cursor: pointer;
+    }
+    body.disco-active .eq-slider-container input[type="range"]::-moz-range-thumb {
+      width: 25px;
+      height: 15px;
+      border-radius: 7px;
+      background: #ff4081;
+      box-shadow: 0 0 10px rgba(255, 64, 129, 0.8);
+      cursor: pointer;
+    }
+    body.disco-active .eq-slider-container input[type="range"]::-webkit-slider-runnable-track {
+      background: linear-gradient(to top, rgba(255, 64, 129, 0.3), rgba(255, 138, 101, 0.3));
+      border-radius: 3px;
+      height: 100%;
+      width: 10px;
+    }
+    body.disco-active .eq-slider-container input[type="range"]::-moz-range-track {
+      background: linear-gradient(to top, rgba(255, 64, 129, 0.3), rgba(255, 138, 101, 0.3));
+      border-radius: 3px;
+      height: 100%;
+      width: 10px;
+    }
+    body.disco-active input[type="range"]:not(.eq-slider-container input) {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(90deg, rgba(255, 64, 129, 0.5) 0%, rgba(255, 138, 101, 0.5) 100%);
+      box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
+      transition: all 0.3s ease;
+    }
+    body.disco-active input[type="range"]:not(.eq-slider-container input)::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ff4081;
+      box-shadow: 0 0 10px rgba(255, 64, 129, 0.8);
+      cursor: pointer;
+    }
+    body.disco-active input[type="range"]:not(.eq-slider-container input)::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ff4081;
+      box-shadow: 0 0 10px rgba(255, 64, 129, 0.8);
+      cursor: pointer;
+    }
+    body.disco-active #progressBar {
+      background: linear-gradient(90deg, rgba(255, 64, 129, 0.7) 0%, rgba(255, 138, 101, 0.7) 100%);
+      height: 15px;
+      border-radius: 7px;
+      box-shadow: 0 0 15px rgba(255, 64, 129, 0.6);
+    }
+    body.disco-active #progressBar::-webkit-slider-thumb {
+      width: 25px;
+      height: 25px;
+      background: #ff4081;
+      box-shadow: 0 0 15px rgba(255, 64, 129, 1);
+    }
+    body.disco-active #progressBar::-moz-range-thumb {
+      width: 25px;
+      height: 25px;
+      background: #ff4081;
+      box-shadow: 0 0 15px rgba(255, 64, 129, 1);
+    }
+    body.disco-active .slider-container span,
+    body.disco-active .eq-slider-container span,
+    body.disco-active .eq-slider-container label {
+      color: #ff4081;
+      text-shadow: 0 0 5px rgba(255, 64, 129, 0.7);
+    }
+    body.disco-active .control-group label {
+      color: #ff4081;
+      text-shadow: 0 0 5px rgba(255, 64, 129, 0.7);
+      font-weight: bold;
+    }
+    body.disco-active .time-display-container {
+      color: #ff4081;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(255, 64, 129, 0.7);
+    }
+    @keyframes disco-pulse {
+      0% { box-shadow: 0 0 5px rgba(255, 64, 129, 0.5); }
+      50% { box-shadow: 0 0 15px rgba(255, 64, 129, 0.8); }
+      100% { box-shadow: 0 0 5px rgba(255, 64, 129, 0.5); }
+    }
+    body.disco-active input[type="range"]:hover {
+      animation: disco-pulse 1.5s infinite;
+    }
+  </style>
+</head>
+<body>
+  <!-- LED scroll element (hidden by default) -->
+  <div id="ledScroll" class="led-scroll">
+    <span id="ledText"></span>
+  </div>
   
-  /* Add disco styling */
-  background: #333;
-  border: 1px solid #ff4081;
-  box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
-}
-
-/* Thumb styling for vertical sliders */
-body.disco-active .eq-slider-container input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 25px;
-  height: 15px;
-  border-radius: 7px;
-  background: #ff4081;
-  box-shadow: 0 0 10px rgba(255, 64, 129, 0.8);
-  cursor: pointer;
-}
-
-body.disco-active .eq-slider-container input[type="range"]::-moz-range-thumb {
-  width: 25px;
-  height: 15px;
-  border-radius: 7px;
-  background: #ff4081;
-  box-shadow: 0 0 10px rgba(255, 64, 129, 0.8);
-  cursor: pointer;
-} 
-
-/* Track styling for vertical sliders */
-body.disco-active .eq-slider-container input[type="range"]::-webkit-slider-runnable-track {
-  background: linear-gradient(to top, rgba(255, 64, 129, 0.3), rgba(255, 138, 101, 0.3));
-  border-radius: 3px;
-  height: 100%;
-  width: 10px;
-}
-
-body.disco-active .eq-slider-container input[type="range"]::-moz-range-track {
-  background: linear-gradient(to top, rgba(255, 64, 129, 0.3), rgba(255, 138, 101, 0.3));
-  border-radius: 3px;
-  height: 100%;
-  width: 10px;
-}
-
-/* Horizontal sliders in disco mode */
-body.disco-active input[type="range"]:not(.eq-slider-container input) {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 10px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, rgba(255, 64, 129, 0.5) 0%, rgba(255, 138, 101, 0.5) 100%);
-  box-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
-  transition: all 0.3s ease;
-}
-
-body.disco-active input[type="range"]:not(.eq-slider-container input)::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ff4081;
-  box-shadow: 0 0 10px rgba(255, 64, 129, 0.8);
-  cursor: pointer;
-}
-
-body.disco-active input[type="range"]:not(.eq-slider-container input)::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ff4081;
-  box-shadow: 0 0 10px rgba(255, 64, 129, 0.8);
-  cursor: pointer;
-}
-
-/* Special styling for progress bar in disco mode */
-body.disco-active #progressBar {
-  background: linear-gradient(90deg, rgba(255, 64, 129, 0.7) 0%, rgba(255, 138, 101, 0.7) 100%);
-  height: 15px;
-  border-radius: 7px;
-  box-shadow: 0 0 15px rgba(255, 64, 129, 0.6);
-}
-
-body.disco-active #progressBar::-webkit-slider-thumb {
-  width: 25px;
-  height: 25px;
-  background: #ff4081;
-  box-shadow: 0 0 15px rgba(255, 64, 129, 1);
-}
-
-body.disco-active #progressBar::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  background: #ff4081;
-  box-shadow: 0 0 15px rgba(255, 64, 129, 1);
-}
-
-/* Slider value text in disco mode */
-body.disco-active .slider-container span,
-body.disco-active .eq-slider-container span,
-body.disco-active .eq-slider-container label {
-  color: #ff4081;
-  text-shadow: 0 0 5px rgba(255, 64, 129, 0.7);
-}
-
-/* Enhance the slider labels in disco mode */
-body.disco-active .control-group label {
-  color: #ff4081;
-  text-shadow: 0 0 5px rgba(255, 64, 129, 0.7);
-  font-weight: bold;
-}
-
-/* Time display in disco mode */
-body.disco-active .time-display-container {
-  color: #ff4081;
-  font-weight: bold;
-  text-shadow: 0 0 5px rgba(255, 64, 129, 0.7);
-}
-
-/* Pulsating effect for sliders in disco mode */
-@keyframes disco-pulse {
-  0% { box-shadow: 0 0 5px rgba(255, 64, 129, 0.5); }
-  50% { box-shadow: 0 0 15px rgba(255, 64, 129, 0.8); }
-  100% { box-shadow: 0 0 5px rgba(255, 64, 129, 0.5); }
-}
-
-body.disco-active input[type="range"]:hover {
-  animation: disco-pulse 1.5s infinite;
-}
-
-
-
-
-    </style>
-  </head>
-  <body>
-    <!-- LED scroll element (hidden by default) -->
-    <div id="ledScroll" class="led-scroll">
-      <!-- Duplicate the text to create a continuous scrolling effect -->
-      <span id="ledText"></span>
+  <!-- Loading Screen -->
+  <div id="loadingScreen">
+    <img src="load.gif" alt="Loading..." />
+  </div>
+  <img id="discoBall" src="disco.gif" alt="Disco Ball" />
+  <div id="lightBeams" class="light-beams-container">
+    <div class="light-beam beam1"></div>
+    <div class="light-beam beam2"></div>
+    <div class="light-beam beam3"></div>
+    <div class="light-beam beam4"></div>
+    <div class="light-beam beam5"></div>
+  </div>
+  
+  <div class="container">
+    <h1>Music Reverber</h1>
+    <!-- File upload -->
+    <input type="file" id="audioFile" accept="audio/*" />
+    <!-- Inline error message -->
+    <div id="errorMessage" style="display:none;">
+      No file selected.
+      <img src="cry.gif" alt="No file selected" />
     </div>
+    <!-- Export button -->
+    <button class="button" id="exportButton">
+      <span class="button__text">
+        <select id="formatSelect">
+          <option value="mp3" selected>MP3</option>
+          <option value="wav">WAV</option>
+        </select>
+        Download Processed Audio
+      </span>
+    </button>
+    <br>
     
-    <!-- Loading Screen -->
-    <div id="loadingScreen">
-      <img src="load.gif" alt="Loading..." />
-    </div>
-    <img id="discoBall" src="disco.gif" alt="Disco Ball" />
-    <div id="lightBeams" class="light-beams-container">
-      <div class="light-beam beam1"></div>
-      <div class="light-beam beam2"></div>
-      <div class="light-beam beam3"></div>
-      <div class="light-beam beam4"></div>
-      <div class="light-beam beam5"></div>
-    </div>
-    
-    <div class="container">
-      <h1>Music Reverber</h1>
-      <!-- File upload -->
-      <input type="file" id="audioFile" accept="audio/*" />
-      <!-- Inline error message -->
-      <div id="errorMessage" style="display:none;">
-        No file selected.
-        <img src="cry.gif" alt="No file selected" />
-      </div>
-      <!-- Removed visualizer block -->
+    <div class="player-container">
+      <!-- Visual container with sidebar and disc -->
+      <div class="visual-container">
+        <div class="visual-wrapper">
+          <!-- Contact Sidebar -->
+          <div class="contact-sidebar">
       
-      <!-- Export button -->
-      <button class="button" id="exportButton">
-        <span class="button__text">
-          <select id="formatSelect">
-            <option value="mp3" selected>MP3</option>
-            <option value="wav">WAV</option>
-          </select>
-          Download Processed Audio
-        </span>
-      </button>
-      <br>
-      
-      <div class="player-container">
-        <!-- Visual container -->
-        <div class="visual-container">
+            <img src="MilkFishicon.ico" alt="Logo" class="logo" />
+            <ul>
+              <li>
+                <a href="https://github.com/MilkFish1010" target="_blank">
+                  <img src="github_icon.png" alt="GitHub" class="icon" />MilkFish1010
+                </a>
+              </li>
+              <li>
+                <a href="https://x.com/milkihm" target="_blank">
+                  <img src="twitter_icon.png" alt="Twitter" class="icon" />
+                </a>
+              </li>
+              <li>Email: astro101023@gmail.<br>com</li>
+            </ul>
+          </div>
+          <!-- Disc Container -->
           <div id="discContainer">
             <div id="djDisc" class="disc"></div>
             <img id="dancingImage" src="https://via.placeholder.com/100?text=Dance" alt="Dancing" />
           </div>
-          <!-- Play/Pause toggle button -->
-          <button id="toggleButton" class="play-button">►</button>
-          <br />
-          <input type="range" id="progressBar" min="0" max="100" step="0.1" value="0" disabled />
-          <div class="time-display-container">
-            <span id="currentTime">0:00</span>
-            <span id="duration">0:00</span>
+        </div>
+        <!-- Play/Pause toggle button -->
+        <button id="toggleButton" class="play-button">►</button>
+        <br />
+        <input type="range" id="progressBar" min="0" max="100" step="0.1" value="0" disabled />
+        <div class="time-display-container">
+          <span id="currentTime">0:00</span>
+          <span id="duration">0:00</span>
+        </div>
+      </div>
+      
+      <!-- Controls container -->
+      <div class="controls-container">
+        <div class="control-group">
+          <label for="speedSlider">Playback Speed</label>
+          <div class="slider-container">
+            <input type="range" id="speedSlider" min="0.5" max="2" step="0.05" value="1" />
+            <span id="speedValue">1.00</span>
           </div>
         </div>
+        <div class="control-group">
+          <label for="reverbSlider">Reverb</label>
+          <div class="slider-container">
+            <input type="range" id="reverbSlider" min="0" max="1" step="0.05" value="0" />
+            <span id="reverbValue">0.00</span>
+          </div>
+        </div>
+        <div class="control-group">
+          <label for="volumeSlider">Volume</label>
+          <div class="slider-container">
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" />
+            <span id="volumeValue">1.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="eq-toggle-container">
+        <button id="eqToggleBtn" class="eq-toggle-btn">
+          <span class="eq-toggle-icon">▼</span>
+          <span class="eq-toggle-text">Equalizer</span>
+        </button>
         
-        <!-- Controls container -->
-        <div class="controls-container">
-          <div class="control-group">
-            <label for="speedSlider">Playback Speed</label>
-            <div class="slider-container">
-              <input type="range" id="speedSlider" min="0.5" max="2" step="0.05" value="1" />
-              <span id="speedValue">1.00</span>
+        <div id="eqPanel" class="eq-container eq-hidden">
+          <h3>Equalizer</h3>
+          <div class="eq-sliders">
+            <!-- EQ sliders will be added here dynamically -->
+          </div>
+          <div class="presets-container">
+            <h4>Presets</h4>
+            <div class="preset-buttons">
+              <button id="preset-flat" class="preset-button active" onclick="applyPreset('flat')">Flat</button>
+              <button id="preset-bass-boost" class="preset-button" onclick="applyPreset('bass-boost')">Bass Boost</button>
+              <button id="preset-treble-boost" class="preset-button" onclick="applyPreset('treble-boost')">Treble Boost</button>
+              <button id="preset-vocal-boost" class="preset-button" onclick="applyPreset('vocal-boost')">Vocal Boost</button>
+              <button id="preset-electronic" class="preset-button" onclick="applyPreset('electronic')">Electronic</button>
+              <button id="preset-rock" class="preset-button" onclick="applyPreset('rock')">Rock</button>
+              <button id="preset-classical" class="preset-button" onclick="applyPreset('classical')">Classical</button>
             </div>
           </div>
-          <div class="control-group">
-            <label for="reverbSlider">Reverb</label>
-            <div class="slider-container">
-              <input type="range" id="reverbSlider" min="0" max="1" step="0.05" value="0" />
-              <span id="reverbValue">0.00</span>
-            </div>
-          </div>
-          <div class="control-group">
-            <label for="volumeSlider">Volume</label>
-            <div class="slider-container">
-              <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" />
-              <span id="volumeValue">1.00</span>
-            </div>
-          </div>
+          <br>
+          <button class="button" onclick="resetEqualizer()">Reset EQ</button>
         </div>
-        <div class="eq-toggle-container">
-          <button id="eqToggleBtn" class="eq-toggle-btn">
-            <span class="eq-toggle-icon">▼</span>
-            <span class="eq-toggle-text">Equalizer</span>
-          </button>
-          
-          <div id="eqPanel" class="eq-container eq-hidden">
-            <h3>Equalizer</h3>
-            <div class="eq-sliders">
-              <!-- EQ sliders will be added here dynamically -->
-            </div>
-            <div class="presets-container">
-              <h4>Presets</h4>
-              <div class="preset-buttons">
-                <button id="preset-flat" class="preset-button active" onclick="applyPreset('flat')">Flat</button>
-                <button id="preset-bass-boost" class="preset-button" onclick="applyPreset('bass-boost')">Bass Boost</button>
-                <button id="preset-treble-boost" class="preset-button" onclick="applyPreset('treble-boost')">Treble Boost</button>
-                <button id="preset-vocal-boost" class="preset-button" onclick="applyPreset('vocal-boost')">Vocal Boost</button>
-                <button id="preset-electronic" class="preset-button" onclick="applyPreset('electronic')">Electronic</button>
-                <button id="preset-rock" class="preset-button" onclick="applyPreset('rock')">Rock</button>
-                <button id="preset-classical" class="preset-button" onclick="applyPreset('classical')">Classical</button>
-              </div>
-            </div>
-            <br>
-            <button class="button" onclick="resetEqualizer()">Reset EQ</button>
-          </div>
-        </div>
+      </div>
     </div>
     
     <script>
+      // (JavaScript remains unchanged)
       // Helper functions for MP3 encoding
       function floatTo16BitPCM(float32Array) {
         const int16Array = new Int16Array(float32Array.length);
@@ -1032,21 +1023,19 @@ body.disco-active input[type="range"]:hover {
       }
       
       function updateDancingAnimation() {
-    const playbackSpeed = parseFloat(speedSlider.value);
-    dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
-    // Update LED scroll animation duration
-    ledText.style.animationDuration = (10 / playbackSpeed) + 's';
-    // Update light beam animations
-    updateLightBeamAnimations(playbackSpeed);
-  }
-  function updateLightBeamAnimations(playbackSpeed) {
-    const beams = document.querySelectorAll('.light-beam');
-    beams.forEach(beam => {
-      // Base animation duration is 2s, adjust inversely with playback speed
-      const duration = 2 / playbackSpeed;
-      beam.style.animationDuration = `${duration}s`;
-    });
-  }
+        const playbackSpeed = parseFloat(speedSlider.value);
+        dancingImage.style.animationDuration = (2 / playbackSpeed) + 's';
+        ledText.style.animationDuration = (10 / playbackSpeed) + 's';
+        updateLightBeamAnimations(playbackSpeed);
+      }
+      
+      function updateLightBeamAnimations(playbackSpeed) {
+        const beams = document.querySelectorAll('.light-beam');
+        beams.forEach(beam => {
+          const duration = 2 / playbackSpeed;
+          beam.style.animationDuration = `${duration}s`;
+        });
+      }
       
       function showDancingImage() {
         const dancingImages = ['a.gif', 'b.gif', 'c.gif', 'd.gif', 'e.gif', 'f.gif', 'g.gif', 'h.gif', 'i.gif', 'k.gif', 'l.gif', 'm.gif', 'n.gif'];
@@ -1112,9 +1101,6 @@ body.disco-active input[type="range"]:hover {
         showLightBeams();
         enableDiscoTheme();
         
-        // Removed visualizer setup
-        
-        // Duplicate the text so it scrolls continuously
         ledText.textContent = `NOW PLAYING: 🎵 ${currentFileName} 🎵   NOW PLAYING: 🎵 ${currentFileName} 🎵`;
         ledScroll.style.display = 'block';
         
@@ -1222,16 +1208,14 @@ body.disco-active input[type="range"]:hover {
       }
       
       speedSlider.addEventListener('input', () => {
-    const value = parseFloat(speedSlider.value);
-    speedValue.textContent = value.toFixed(2);
-    if (source && isPlaying) {
-      source.playbackRate.value = value;
-      updateDancingAnimation();
-    }
-    // Even if not playing, update the animations for when play starts
-    updateLightBeamAnimations(value);
-  });
-
+        const value = parseFloat(speedSlider.value);
+        speedValue.textContent = value.toFixed(2);
+        if (source && isPlaying) {
+          source.playbackRate.value = value;
+          updateDancingAnimation();
+        }
+        updateLightBeamAnimations(value);
+      });
       
       reverbSlider.addEventListener('input', () => {
         const value = parseFloat(reverbSlider.value);
@@ -1389,102 +1373,91 @@ body.disco-active input[type="range"]:hover {
       toggleButton.addEventListener('click', togglePlayPause);
       
       function showLightBeams() {
-    lightBeams.style.opacity = '1';
-    updateLightBeamAnimations(parseFloat(speedSlider.value));
-  }
+        lightBeams.style.opacity = '1';
+        updateLightBeamAnimations(parseFloat(speedSlider.value));
+      }
       
       function hideLightBeams() {
         lightBeams.style.opacity = '0';
       }
       
       async function exportProcessedAudio() {
-    if (!audioBuffer) return alert("Please load an audio file first.");
-    
-    const playbackSpeed = parseFloat(speedSlider.value);
-    const newDuration = audioBuffer.duration / playbackSpeed;
-    const sampleRate = audioContext.sampleRate;
-    const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, sampleRate * newDuration, sampleRate);
-    
-    const offlineSource = offlineContext.createBufferSource();
-    offlineSource.buffer = audioBuffer;
-    offlineSource.playbackRate.value = playbackSpeed;
-    
-    // Create offline EQ filters
-    const offlineEQBands = EQ_FREQUENCIES.map(freq => {
-      const filter = offlineContext.createBiquadFilter();
-      filter.type = 'peaking';
-      filter.frequency.value = freq;
-      filter.Q.value = 1;
-      return filter;
-    });
-    
-    // Set the gain values from the current EQ settings
-    eqBands.forEach((band, index) => {
-      offlineEQBands[index].gain.value = band.gain.value;
-    });
-    
-    const offlineGain = offlineContext.createGain();
-    offlineGain.gain.value = parseFloat(volumeSlider.value);
-    
-    const offlineConvolver = offlineContext.createConvolver();
-    offlineConvolver.buffer = impulseResponse;
-    
-    const offlineDryGain = offlineContext.createGain();
-    const offlineWetGain = offlineContext.createGain();
-    const reverbAmount = parseFloat(reverbSlider.value);
-    offlineDryGain.gain.value = 1 - reverbAmount;
-    offlineWetGain.gain.value = reverbAmount;
-    
-    // Connect source to first EQ band
-    offlineSource.connect(offlineEQBands[0]);
-    
-    // Connect EQ bands in series
-    for (let i = 0; i < offlineEQBands.length - 1; i++) {
-      offlineEQBands[i].connect(offlineEQBands[i + 1]);
-    }
-    
-    // Connect last EQ band to dry gain
-    offlineEQBands[offlineEQBands.length - 1].connect(offlineDryGain);
-    offlineDryGain.connect(offlineGain);
-    
-    // Also connect source to convolver for reverb
-    offlineSource.connect(offlineConvolver);
-    offlineConvolver.connect(offlineWetGain);
-    offlineWetGain.connect(offlineGain);
-    
-    offlineGain.connect(offlineContext.destination);
-    
-    offlineSource.start();
-    loadingScreen.style.display = 'flex';
-    loadingScreen.classList.remove('hidden');
-    
-    try {
-      const renderedBuffer = await offlineContext.startRendering();
-      hideLoadingScreen();
-      
-      const selectedFormat = formatSelect.value;
-      let blob;
-      if (selectedFormat === 'mp3') {
-        blob = encodeMP3(renderedBuffer);
-      } else {
-        blob = bufferToWav(renderedBuffer);
+        if (!audioBuffer) return alert("Please load an audio file first.");
+        
+        const playbackSpeed = parseFloat(speedSlider.value);
+        const newDuration = audioBuffer.duration / playbackSpeed;
+        const sampleRate = audioContext.sampleRate;
+        const offlineContext = new OfflineAudioContext(audioBuffer.numberOfChannels, sampleRate * newDuration, sampleRate);
+        
+        const offlineSource = offlineContext.createBufferSource();
+        offlineSource.buffer = audioBuffer;
+        offlineSource.playbackRate.value = playbackSpeed;
+        
+        const offlineEQBands = EQ_FREQUENCIES.map(freq => {
+          const filter = offlineContext.createBiquadFilter();
+          filter.type = 'peaking';
+          filter.frequency.value = freq;
+          filter.Q.value = 1;
+          return filter;
+        });
+        
+        eqBands.forEach((band, index) => {
+          offlineEQBands[index].gain.value = band.gain.value;
+        });
+        
+        const offlineGain = offlineContext.createGain();
+        offlineGain.gain.value = parseFloat(volumeSlider.value);
+        
+        const offlineConvolver = offlineContext.createConvolver();
+        offlineConvolver.buffer = impulseResponse;
+        
+        const offlineDryGain = offlineContext.createGain();
+        const offlineWetGain = offlineContext.createGain();
+        const reverbAmount = parseFloat(reverbSlider.value);
+        offlineDryGain.gain.value = 1 - reverbAmount;
+        offlineWetGain.gain.value = reverbAmount;
+        
+        offlineSource.connect(offlineEQBands[0]);
+        for (let i = 0; i < offlineEQBands.length - 1; i++) {
+          offlineEQBands[i].connect(offlineEQBands[i + 1]);
+        }
+        offlineEQBands[offlineEQBands.length - 1].connect(offlineDryGain);
+        offlineDryGain.connect(offlineGain);
+        offlineSource.connect(offlineConvolver);
+        offlineConvolver.connect(offlineWetGain);
+        offlineWetGain.connect(offlineGain);
+        offlineGain.connect(offlineContext.destination);
+        
+        offlineSource.start();
+        loadingScreen.style.display = 'flex';
+        loadingScreen.classList.remove('hidden');
+        
+        try {
+          const renderedBuffer = await offlineContext.startRendering();
+          hideLoadingScreen();
+          
+          const selectedFormat = formatSelect.value;
+          let blob;
+          if (selectedFormat === 'mp3') {
+            blob = encodeMP3(renderedBuffer);
+          } else {
+            blob = bufferToWav(renderedBuffer);
+          }
+          
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = selectedFormat === 'mp3' ? 'processed_audio.mp3' : 'processed_audio.wav';
+          document.body.appendChild(a);
+          a.click();
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          hideLoadingScreen();
+          console.error("Error during offline rendering:", error);
+          alert("Error processing audio.");
+        }
       }
-      
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = selectedFormat === 'mp3' ? 'processed_audio.mp3' : 'processed_audio.wav';
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      hideLoadingScreen();
-      console.error("Error during offline rendering:", error);
-      alert("Error processing audio.");
-    }
-  }
-
       
       function bufferToWav(buffer) {
         let numOfChan = buffer.numberOfChannels,
@@ -1674,21 +1647,26 @@ body.disco-active input[type="range"]:hover {
           document.getElementById(`preset-${presetName}`).classList.add('active');
         }
       }
+      
       function setupEQToggle() {
-    const eqToggleBtn = document.getElementById('eqToggleBtn');
-    const eqPanel = document.getElementById('eqPanel');
-    const eqToggleIcon = eqToggleBtn.querySelector('.eq-toggle-icon');
-    
-    eqToggleBtn.addEventListener('click', function() {
-      eqPanel.classList.toggle('eq-hidden');
-      eqToggleIcon.classList.toggle('active');
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    createEQSliders();
-    setupEQToggle();
-  });
+        const eqToggleBtn = document.getElementById('eqToggleBtn');
+        const eqPanel = document.getElementById('eqPanel');
+        const eqToggleIcon = eqToggleBtn.querySelector('.eq-toggle-icon');
+        
+        eqToggleBtn.addEventListener('click', function() {
+          eqPanel.classList.toggle('eq-hidden');
+          eqToggleIcon.classList.toggle('active');
+        });
+      }
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        createEQSliders();
+        setupEQToggle();
+      });
     </script>
-  </body>
-  </html>
+  </div>
+  <footer>MIT License
+
+    Copyright (c) 2025 MilkFish1010</footer>
+</body>
+</html>

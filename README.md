@@ -2,12 +2,7 @@
  It slows and reverbs music
 
 
-Things to do:
-- AI chatbot that reacts to music
-- Change Confetti to Music notes
+Things I might:
+- Confetti as signal that file is uploaded
 - Transition animations by playback speed
-- Compressed texture audio
-- Sync Animations to playback
 - Random BG
-- Bass Booster
-- Equalizer
