@@ -242,16 +242,52 @@
     #toggleButton:hover {
       background: rgba(0,0,0,0.8);
     }
+     
     #dancingImage {
-      position: sticky;
-      top: 50%;
-      left: calc(100% + 20px);
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100px;
       height: 100px;
       opacity: 0;
+      transform: translate(0, -100px) scale(0) rotate(0deg);
       transition: opacity 0.5s ease;
-      transform: translateY(-50%);
+      z-index: 10000;
+      margin-left: 100px;
+      margin-top: 100px;
       animation: dance 2s infinite;
+    }
+    @media screen and (max-width: 768px) {
+      #dancingImage {
+        margin-left: 25px;
+        margin-top: 25px;
+      }
+      
+    }
+
+    #dancingImage.active {
+      animation: danceIn 0.8s forwards;
+    }
+
+    #dancingImage.out {
+      animation: danceOut 0.8s forwards;
+    }
+
+    @keyframes danceIn {
+      0% { transform: translate(0, -100px) scale(0) rotate(0deg); opacity: 0; }
+      100% { transform: translate(0, 0) scale(1) rotate(720deg); opacity: 1; }
+    }
+
+    @keyframes danceOut {
+      0% { transform: translate(0, 0) scale(1) rotate(720deg); opacity: 1; }
+      100% { transform: translate(0, -100px) scale(0) rotate(1080deg); opacity: 0; }
+    }
+
+    @media screen and (max-width: 768px) {
+      #dancingImage {
+        width: 80px;
+        height: 80px;
+      }
     }
     @keyframes dance {
       0%   { transform: translateY(-50%) translateX(0); }
@@ -465,7 +501,9 @@
     }
     /* Play button styles */
     .play-button {
-      display: block;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin: 20px auto;
       width: 80px;
       height: 80px;
@@ -480,15 +518,71 @@
       z-index: 100;
       position: relative;
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      padding: 0; /* Remove padding that might affect centering */
     }
+
     .play-button:hover, .play-button:active {
       background: rgba(255,64,129,0.9);
       transform: scale(1.05);
     }
+    
+    /* Add specific styles for the play and pause icons */
+    .play-icon {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 18px 0 18px 30px;
+      border-color: transparent transparent transparent #ffffff;
+      margin-left: 5px; /* Slight adjustment to center the triangle */
+    }
+    
+    .pause-icon {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .pause-icon span {
+      display: inline-block;
+      width: 10px;
+      height: 30px;
+      background-color: #ffffff;
+    }
+
     @media screen and (max-width: 768px) {
       .play-button {
         margin: 30px auto;
+        width: 70px;
+        height: 70px;
       }
+      
+      .play-icon {
+        border-width: 15px 0 15px 25px;
+      }
+      
+      .pause-icon span {
+        width: 8px;
+        height: 25px;
+      }
+    }
+    
+    @media screen and (max-width: 480px) {
+      .play-button {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .play-icon {
+        border-width: 12px 0 12px 20px;
+      }
+      
+      .pause-icon span {
+        width: 7px;
+        height: 20px;
+      }
+    }
       .player-container {
         gap: 30px;
       }
@@ -749,6 +843,7 @@
     body.disco-active input[type="range"]:hover {
       animation: disco-pulse 1.5s infinite;
     }
+    
   </style>
 </head>
 <body>
@@ -769,6 +864,7 @@
     <div class="light-beam beam4"></div>
     <div class="light-beam beam5"></div>
   </div>
+  <img id="dancingImage" src="https://via.placeholder.com/100?text=Dance" alt="Dancing" />
   
   <div class="container">
     <h1>Music Reverber</h1>
@@ -816,11 +912,13 @@
           <!-- Disc Container -->
           <div id="discContainer">
             <div id="djDisc" class="disc"></div>
-            <img id="dancingImage" src="https://via.placeholder.com/100?text=Dance" alt="Dancing" />
+            
           </div>
         </div>
         <!-- Play/Pause toggle button -->
-        <button id="toggleButton" class="play-button">►</button>
+        <button id="toggleButton" class="play-button">
+          <div class="play-icon"></div>
+        </button>
         <br />
         <input type="range" id="progressBar" min="0" max="100" step="0.1" value="0" disabled />
         <div class="time-display-container">
@@ -1071,13 +1169,14 @@
         if (!audioBuffer) return;
         
         if (!isPlaying) {
-          await playAudio();
-          toggleButton.innerHTML = "❚❚";
+            await playAudio();
+            toggleButton.innerHTML = '<div class="pause-icon"><span></span><span></span></div>';
         } else {
-          pauseAudio();
-          toggleButton.innerHTML = "►";
+            pauseAudio();
+            toggleButton.innerHTML = '<div class="play-icon"></div>';
         }
-      }
+    }
+    
       
       toggleButton.addEventListener('click', togglePlayPause);
       toggleButton.addEventListener('touchend', function(e) {
@@ -1127,8 +1226,8 @@
       
       function stopAudio() {
         if (source) {
-          source.stop();
-          source = null;
+            source.stop();
+            source = null;
         }
         isPlaying = false;
         isPaused = false;
@@ -1136,13 +1235,13 @@
         pausedAt = 0;
         progressBar.value = 0;
         currentTimeDisplay.textContent = formatTime(0);
-        toggleButton.innerHTML = "►";
+        toggleButton.innerHTML = '<div class="play-icon"></div>';
         hideDancingImage();
         hideLightBeams();
         disableDiscoTheme();
         ledScroll.style.display = 'none';
         stopProgressUpdate();
-      }
+    }
       
       function createSourceNode() {
         source = audioContext.createBufferSource();
@@ -1658,6 +1757,23 @@
           eqToggleIcon.classList.toggle('active');
         });
       }
+      function showDancingImage() {
+      const dancingImages = ['a.gif', 'b.gif', 'c.gif', 'd.gif', 'e.gif', 'f.gif', 'g.gif', 'h.gif', 'i.gif', 'k.gif', 'l.gif', 'm.gif', 'n.gif'];
+      dancingImage.src = dancingImages[Math.floor(Math.random() * dancingImages.length)];
+      dancingImage.classList.remove('out');
+      dancingImage.classList.add('active');
+      updateDancingAnimation();
+    }
+    
+    function hideDancingImage() {
+      dancingImage.classList.remove('active');
+      dancingImage.classList.add('out');
+      dancingImage.addEventListener('animationend', function handler() {
+        dancingImage.classList.remove('out');
+        dancingImage.removeEventListener('animationend', handler);
+      });
+    }
+    
       
       document.addEventListener('DOMContentLoaded', function() {
         createEQSliders();
