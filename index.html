@@ -135,8 +135,10 @@
       transform: translate(-50%, 0) scale(0) rotate(0deg);
       opacity: 0;
       z-index: 10000;
-      width: 220px;
-      height: 220px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      box-shadow: 0 0 200px 4px rgba(255, 255, 255, 0.7);
     }
     @media screen and (max-width: 768px) {
       #discoBall {
@@ -196,6 +198,7 @@
       user-select: none;
       background-image: url('disc.jpg');
       background-size: cover;
+      margin-left: 12px;
     }
     #toggleButton {
       min-width: 60px;
@@ -869,7 +872,10 @@ body.disco-active #iosMessage {
   border-color: rgba(255, 64, 129, 0.3);
   color: #ff4081;
 }
-    
+#copyText {
+      cursor: pointer; /* Indicate it's clickable */
+      user-select: all; /* Make the text easily selectable */
+    }
   </style>
 </head>
 <body>
@@ -1016,7 +1022,7 @@ body.disco-active #iosMessage {
           </a>
         </li>
         <br>
-        <li>Email: astro101023@gmail.com</li>
+        <li>Email: <div id="copyText">astro101023@gmail.com</div></li>
       </ul>
     </div>
     <script>
@@ -1855,6 +1861,18 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('.ios-fallback').style.display = 'block';
     }
   });
+
+  const copyText = document.getElementById('copyText');
+
+    copyText.addEventListener('click', () => {
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = copyText.textContent;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+      alert('Text copied to clipboard!');
+    });
       
       document.addEventListener('DOMContentLoaded', function() {
         createEQSliders();
@@ -1862,6 +1880,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     </script>
   </div>
+  
   <footer>MIT License
 
     Copyright (c) 2025 MilkFish1010</footer>
